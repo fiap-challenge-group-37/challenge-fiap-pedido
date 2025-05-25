@@ -99,7 +99,7 @@ public class PedidoController {
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor"
                     /* content removido para ErrorResponseDTO */)
     })
-    @GetMapping("/{pedidoId}")
+    @GetMapping("/{pedido_id}")
     public ResponseEntity<PedidoResponseDTO> buscarPedidoPorId(@PathVariable Long pedidoId) {
         Pedido pedido = buscarPedidoPorIdUseCase.buscarPorId(pedidoId);
         return ResponseEntity.ok(PedidoResponseDTO.fromDomain(pedido));
@@ -118,7 +118,7 @@ public class PedidoController {
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor"
                     /* content removido para ErrorResponseDTO */)
     })
-    @PatchMapping("/{pedidoId}/status")
+    @PatchMapping("/{pedido_id}/status")
     public ResponseEntity<PedidoResponseDTO> atualizarStatusPedido(
             @PathVariable Long pedidoId,
             @Valid @RequestBody StatusUpdateRequestDTO statusUpdateRequestDTO) {
