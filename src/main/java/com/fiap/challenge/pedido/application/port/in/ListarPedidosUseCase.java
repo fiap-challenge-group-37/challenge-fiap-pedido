@@ -1,7 +1,6 @@
 package com.fiap.challenge.pedido.application.port.in;
 
 import com.fiap.challenge.pedido.domain.entities.Pedido;
-import com.fiap.challenge.pedido.domain.entities.StatusPedido;
 
 import java.util.List;
 import java.util.Optional;

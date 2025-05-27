@@ -1,7 +1,7 @@
 package com.fiap.challenge.produto.application.service;
 
 import com.fiap.challenge.produto.application.exception.ApplicationServiceException;
-import com.fiap.challenge.produto.application.exception.ProdutoNaoEncontradoException; // New import
+import com.fiap.challenge.produto.application.exception.ProdutoNaoEncontradoException;
 import com.fiap.challenge.produto.application.port.in.*;
 import com.fiap.challenge.produto.domain.entities.Categoria;
 import com.fiap.challenge.produto.domain.entities.Produto;
@@ -11,8 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-// Optional removed from imports if no longer used elsewhere in this file
-
 @Service
 public class ProdutoApplicationService implements
         CriarProdutoUseCase,
@@ -31,13 +29,26 @@ public class ProdutoApplicationService implements
     @Transactional
     @Override
     public Produto executar(ProdutoDTO produtoDTO) {
-        Produto produto = produtoDTO.toDomain();
+        Categoria categoria;
+        try {
+            categoria = Categoria.fromString(produtoDTO.getCategoria());
+        } catch (IllegalArgumentException e) {
+            throw new ApplicationServiceException("Categoria inválida fornecida: " + produtoDTO.getCategoria(), e);
+        }
+
+        Produto produto = new Produto(
+                produtoDTO.getNome(),
+                categoria, // Usa a categoria validada
+                produtoDTO.getPreco(),
+                produtoDTO.getDescricao()
+        );
+
         return produtoRepository.save(produto);
     }
 
     @Transactional
     @Override
-    public Produto executar(Long id, ProdutoDTO produtoDTO) { // Changed return type
+    public Produto executar(Long id, ProdutoDTO produtoDTO) {
         Produto produtoExistente = produtoRepository.findById(id)
                 .orElseThrow(() -> new ProdutoNaoEncontradoException("Produto com ID " + id + " não encontrado para atualização."));
 
@@ -54,8 +65,8 @@ public class ProdutoApplicationService implements
 
     @Transactional
     @Override
-    public void removerPorId(Long id) { // Changed return type and logic
-        if (!produtoRepository.findById(id).isPresent()) {
+    public void removerPorId(Long id) {
+        if (produtoRepository.findById(id).isEmpty()) {
             throw new ProdutoNaoEncontradoException("Produto com ID " + id + " não encontrado para remoção.");
         }
         produtoRepository.deleteById(id);
@@ -63,7 +74,7 @@ public class ProdutoApplicationService implements
 
     @Transactional(readOnly = true)
     @Override
-    public Produto buscarPorId(Long id) { // Changed return type
+    public Produto buscarPorId(Long id) {
         return produtoRepository.findById(id)
                 .orElseThrow(() -> new ProdutoNaoEncontradoException("Produto com ID " + id + " não encontrado."));
     }

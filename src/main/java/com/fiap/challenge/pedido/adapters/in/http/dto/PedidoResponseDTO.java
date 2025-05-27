@@ -1,13 +1,10 @@
 package com.fiap.challenge.pedido.adapters.in.http.dto;
 
-import com.fiap.challenge.pedido.domain.entities.ItemPedido;
 import com.fiap.challenge.pedido.domain.entities.Pedido;
-import com.fiap.challenge.pedido.domain.entities.StatusPedido;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class PedidoResponseDTO {
     private Long id;
@@ -29,10 +26,9 @@ public class PedidoResponseDTO {
     }
 
     public static PedidoResponseDTO fromDomain(Pedido pedido) {
-        if (pedido == null) return null;
         List<ItemPedidoResponseDTO> itemDTOs = pedido.getItens().stream()
                 .map(ItemPedidoResponseDTO::fromDomain)
-                .collect(Collectors.toList());
+                .toList();
         return new PedidoResponseDTO(
                 pedido.getId(),
                 pedido.getClienteId(),
@@ -43,8 +39,6 @@ public class PedidoResponseDTO {
                 pedido.getDataAtualizacao()
         );
     }
-
-    // Getters
     public Long getId() { return id; }
     public Long getClienteId() { return clienteId; }
     public List<ItemPedidoResponseDTO> getItens() { return itens; }

@@ -1,19 +1,18 @@
-package com.fiap.challenge.domain.entities;
+package com.fiap.challenge.cliente.domain.entities;
 
-import com.fiap.challenge.cliente.domain.entities.Cliente;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 
-public class ClienteTest {
+class ClienteTest {
 
     @Test
-    public void deveLancarExcecaoQuandoCpfInvalido() {
+    void deveLancarExcecaoQuandoCpfInvalido() {
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> new Cliente("12345678901", "Nome Teste", "teste@email.com"));
     }
 
     @Test
-    public void deveCriarClienteComCpfValido() {
+    void deveCriarClienteComCpfValido() {
         Cliente cliente = new Cliente("52998224725", "João", "joao@email.com");
         Assertions.assertEquals("João", cliente.getNome());
         Assertions.assertEquals("joao@email.com", cliente.getEmail());

@@ -107,18 +107,6 @@ public class PedidoApplicationService implements CriarPedidoUseCase, ListarPedid
         } catch (IllegalArgumentException e) {
             throw new ValidacaoPedidoException("Status '" + novoStatusStr + "' inválido. " + e.getMessage());
         }
-
-        // Adicionar validações de transição de status se necessário.
-        // Exemplo simples: Não pode voltar status se estiver PRONTO ou FINALIZADO, a menos que seja uma correção administrativa.
-        // Por exemplo:
-        // if (pedido.getStatus() == StatusPedido.PRONTO && novoStatus == StatusPedido.EM_PREPARACAO) {
-        // throw new ValidacaoPedidoException("Não é possível alterar o status de PRONTO para EM_PREPARACAO.");
-        // }
-        // if (pedido.getStatus() == StatusPedido.FINALIZADO) {
-        // throw new ValidacaoPedidoException("Pedido já finalizado não pode ter seu status alterado.");
-        // }
-
-
         pedido.atualizarStatus(novoStatus);
         return pedidoRepository.save(pedido);
     }

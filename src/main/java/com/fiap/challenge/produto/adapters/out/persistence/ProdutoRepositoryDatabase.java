@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
 public class ProdutoRepositoryDatabase implements ProdutoRepository {
@@ -38,7 +37,7 @@ public class ProdutoRepositoryDatabase implements ProdutoRepository {
     public List<Produto> findAll() {
         return jpaRepository.findAll().stream()
                 .map(ProdutoEntity::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -52,6 +51,6 @@ public class ProdutoRepositoryDatabase implements ProdutoRepository {
     public List<Produto> findByCategoria(Categoria categoria) {
         return jpaRepository.findByCategoria(categoria).stream()
                 .map(ProdutoEntity::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

@@ -1,6 +1,6 @@
 package com.fiap.challenge.pedido.adapters.in.http;
 
-// Removido: import com.fiap.challenge.config.exception.dto.ErrorResponseDTO;
+
 import com.fiap.challenge.pedido.adapters.in.http.dto.PedidoDTO;
 import com.fiap.challenge.pedido.adapters.in.http.dto.PedidoResponseDTO;
 import com.fiap.challenge.pedido.adapters.in.http.dto.StatusUpdateRequestDTO;
@@ -9,8 +9,6 @@ import com.fiap.challenge.pedido.application.port.in.BuscarPedidoPorIdUseCase;
 import com.fiap.challenge.pedido.application.port.in.CriarPedidoUseCase;
 import com.fiap.challenge.pedido.application.port.in.ListarPedidosUseCase;
 import com.fiap.challenge.pedido.domain.entities.Pedido;
-// import com.fiap.challenge.pedido.domain.entities.StatusPedido; // Não usado diretamente aqui
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -25,10 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/pedidos")
@@ -86,7 +82,7 @@ public class PedidoController {
         List<Pedido> pedidos = listarPedidosUseCase.executar(Optional.ofNullable(status));
         List<PedidoResponseDTO> responseDTOs = pedidos.stream()
                 .map(PedidoResponseDTO::fromDomain)
-                .collect(Collectors.toList());
+                .toList(); // Usando .toList() conforme sua preferência
         return ResponseEntity.ok(responseDTOs);
     }
 
@@ -100,7 +96,7 @@ public class PedidoController {
                     /* content removido para ErrorResponseDTO */)
     })
     @GetMapping("/{pedido_id}")
-    public ResponseEntity<PedidoResponseDTO> buscarPedidoPorId(@PathVariable Long pedidoId) {
+    public ResponseEntity<PedidoResponseDTO> buscarPedidoPorId(@PathVariable("pedido_id") Long pedidoId) { // Nome do parâmetro Java já estava correto
         Pedido pedido = buscarPedidoPorIdUseCase.buscarPorId(pedidoId);
         return ResponseEntity.ok(PedidoResponseDTO.fromDomain(pedido));
     }
@@ -120,10 +116,10 @@ public class PedidoController {
     })
     @PatchMapping("/{pedido_id}/status")
     public ResponseEntity<PedidoResponseDTO> atualizarStatusPedido(
-            @PathVariable Long pedidoId,
+            @PathVariable("pedido_id") Long pedidoId,
             @Valid @RequestBody StatusUpdateRequestDTO statusUpdateRequestDTO) {
-        logger.info("Recebida requisição para atualizar status do pedido {}: {}", pedidoId, statusUpdateRequestDTO.getNovoStatus());
-        Pedido pedidoAtualizado = atualizarStatusPedidoUseCase.executar(pedidoId, statusUpdateRequestDTO.getNovoStatus());
+        logger.info("Recebida requisição para atualizar status do pedido {}: {}", pedidoId, statusUpdateRequestDTO.getNovoStatus()); // ALTERADO AQUI
+        Pedido pedidoAtualizado = atualizarStatusPedidoUseCase.executar(pedidoId, statusUpdateRequestDTO.getNovoStatus()); // ALTERADO AQUI
         return ResponseEntity.ok(PedidoResponseDTO.fromDomain(pedidoAtualizado));
     }
 }

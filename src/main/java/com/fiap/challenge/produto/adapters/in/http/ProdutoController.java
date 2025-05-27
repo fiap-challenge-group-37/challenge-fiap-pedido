@@ -16,27 +16,18 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-// FieldError, MethodArgumentNotValidException, ResponseStatus, ExceptionHandler imports can be removed
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
-// HashMap and Map imports can be removed
 import java.util.List;
-// Optional import can be removed
-import java.util.stream.Collectors;
+
 
 @RestController
 @RequestMapping("/produtos")
 @Tag(name = "Produto Controller", description = "Operações para visualização e gerenciamento de produtos")
 public class ProdutoController {
-
-    private static final Logger logger = LoggerFactory.getLogger(ProdutoController.class);
-    // ERRO_INESPERADO_MSG and ERRO_KEY can be removed if local handlers are removed
-
     private final CriarProdutoUseCase criarProdutoUseCase;
     private final AtualizarProdutoUseCase atualizarProdutoUseCase;
     private final RemoverProdutoUseCase removerProdutoUseCase;
@@ -146,7 +137,7 @@ public class ProdutoController {
 
         List<ProdutoDTO> dtos = produtos.stream()
                 .map(ProdutoDTO::fromDomain)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(dtos);
     }
 

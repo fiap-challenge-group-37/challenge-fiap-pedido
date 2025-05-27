@@ -2,7 +2,7 @@ package com.fiap.challenge.pedido.adapters.out.persistence;
 
 import com.fiap.challenge.pedido.domain.entities.Pedido;
 import com.fiap.challenge.pedido.domain.entities.StatusPedido;
-import com.fiap.challenge.pedido.domain.entities.ItemPedido; // Import para o mapeamento
+import com.fiap.challenge.pedido.domain.entities.ItemPedido;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +12,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -25,8 +24,8 @@ public class PedidoEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
-    private Long clienteId; // Pode ser nulo
+    @Column // clienteId pode ser nulo, permitindo pedidos anônimos
+    private Long clienteId;
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<ItemPedidoEntity> itens = new ArrayList<>();
@@ -47,24 +46,23 @@ public class PedidoEntity {
     public Pedido toDomain() {
         List<ItemPedido> domainItens = this.itens.stream()
                 .map(ItemPedidoEntity::toDomain)
-                .collect(Collectors.toList());
+                .toList();
         return new Pedido(this.id, this.clienteId, domainItens, this.valorTotal, this.status, this.dataCriacao, this.dataAtualizacao);
     }
 
     public static PedidoEntity fromDomain(Pedido pedido) {
         PedidoEntity entity = new PedidoEntity();
-        entity.setId(pedido.getId()); // Pode ser nulo na criação
+        entity.setId(pedido.getId());
         entity.setClienteId(pedido.getClienteId());
         entity.setValorTotal(pedido.getValorTotal());
         entity.setStatus(pedido.getStatus());
         entity.setDataCriacao(pedido.getDataCriacao() == null ? LocalDateTime.now() : pedido.getDataCriacao());
         entity.setDataAtualizacao(pedido.getDataAtualizacao() == null ? LocalDateTime.now() : pedido.getDataAtualizacao());
 
-        // Mapear itens
         if (pedido.getItens() != null) {
             List<ItemPedidoEntity> itemEntities = pedido.getItens().stream()
                     .map(itemDomain -> ItemPedidoEntity.fromDomain(itemDomain, entity))
-                    .collect(Collectors.toList());
+                    .toList();
             entity.setItens(itemEntities);
         }
         return entity;

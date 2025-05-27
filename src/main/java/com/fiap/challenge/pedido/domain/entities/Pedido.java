@@ -1,7 +1,5 @@
 package com.fiap.challenge.pedido.domain.entities;
 
-import com.fiap.challenge.cliente.domain.entities.Cliente; // Assumindo que você tem essa entidade
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;

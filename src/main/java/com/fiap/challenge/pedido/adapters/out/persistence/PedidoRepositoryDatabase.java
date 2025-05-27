@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+// O import java.util.stream.Collectors; não é mais estritamente necessário se você usar apenas .toList()
 
 @Repository
 public class PedidoRepositoryDatabase implements PedidoRepository {
@@ -23,7 +23,6 @@ public class PedidoRepositoryDatabase implements PedidoRepository {
     @Transactional
     public Pedido save(Pedido pedido) {
         PedidoEntity entity = PedidoEntity.fromDomain(pedido);
-        // Garante que a relação bidirecional está correta antes de salvar
         if (entity.getItens() != null) {
             entity.getItens().forEach(itemEntity -> itemEntity.setPedido(entity));
         }
@@ -40,10 +39,9 @@ public class PedidoRepositoryDatabase implements PedidoRepository {
     @Override
     @Transactional(readOnly = true)
     public List<Pedido> findAll() {
-        // Retorna a lista ordenada para acompanhamento
         return jpaRepository.findPedidosNaoFinalizadosOrdenadosParaCozinha().stream()
                 .map(PedidoEntity::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -51,6 +49,15 @@ public class PedidoRepositoryDatabase implements PedidoRepository {
     public List<Pedido> findByStatus(StatusPedido status) {
         return jpaRepository.findByStatus(status).stream()
                 .map(PedidoEntity::toDomain)
-                .collect(Collectors.toList());
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Pedido> findByStatusInOrderByDataCriacaoAsc(List<StatusPedido> statuses) {
+        List<PedidoEntity> entities = jpaRepository.findByStatusInOrderByDataCriacaoAsc(statuses);
+        return entities.stream()
+                .map(PedidoEntity::toDomain)
+                .toList();
     }
 }

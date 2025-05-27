@@ -7,16 +7,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
-
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -34,7 +30,9 @@ public class GlobalRestExceptionHandler {
                 .collect(Collectors.joining(", "));
         String message = "Erro de validação. " + errors;
 
-        logger.warn("Erro de validação: {}, Path: {}", errors, request.getDescription(false));
+        if (logger.isWarnEnabled()) {
+            logger.warn("Erro de validação: {}, Path: {}", errors, request.getDescription(false));
+        }
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 LocalDateTime.now(),
                 HttpStatus.UNPROCESSABLE_ENTITY.value(),
@@ -48,7 +46,9 @@ public class GlobalRestExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponseDTO> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
-        logger.warn("Argumento ilegal/inválido: {}, Path: {}", ex.getMessage(), request.getDescription(false));
+        if (logger.isWarnEnabled()) {
+            logger.warn("Argumento ilegal/inválido: {}, Path: {}", ex.getMessage(), request.getDescription(false));
+        }
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
@@ -62,7 +62,9 @@ public class GlobalRestExceptionHandler {
     @ExceptionHandler(ApplicationServiceException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponseDTO> handleApplicationServiceException(ApplicationServiceException ex, WebRequest request) {
-        logger.error("Erro na camada de aplicação: {}, Path: {}", ex.getMessage(), request.getDescription(false), ex);
+        if (logger.isErrorEnabled()) {
+            logger.error("Erro na camada de aplicação: {}, Path: {}", ex.getMessage(), request.getDescription(false), ex);
+        }
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
@@ -73,11 +75,12 @@ public class GlobalRestExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    // Handler for ProdutoNaoEncontradoException
     @ExceptionHandler(ProdutoNaoEncontradoException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<ErrorResponseDTO> handleProdutoNaoEncontradoException(ProdutoNaoEncontradoException ex, WebRequest request) {
-        logger.warn("Recurso não encontrado: {}, Path: {}", ex.getMessage(), request.getDescription(false));
+        if (logger.isWarnEnabled()) {
+            logger.warn("Recurso não encontrado: {}, Path: {}", ex.getMessage(), request.getDescription(false));
+        }
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 LocalDateTime.now(),
                 HttpStatus.NOT_FOUND.value(),
@@ -91,7 +94,9 @@ public class GlobalRestExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<ErrorResponseDTO> handleGenericException(Exception ex, WebRequest request) {
-        logger.error("Erro inesperado na aplicação: Path: {}", request.getDescription(false), ex);
+        if (logger.isErrorEnabled()) {
+            logger.error("Erro inesperado na aplicação: Path: {}", request.getDescription(false), ex);
+        }
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 LocalDateTime.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),

@@ -9,8 +9,7 @@ import java.util.Optional;
 public interface PedidoRepository {
     Pedido save(Pedido pedido);
     Optional<Pedido> findById(Long id);
-    List<Pedido> findAll();
+    List<Pedido> findAll(); // Este método agora usa a ordenação da cozinha
     List<Pedido> findByStatus(StatusPedido status);
-    // Poderia ter um método para listar pedidos por ordem de chegada para a cozinha:
-    // List<Pedido> findByStatusOrderByDataCriacaoAsc(List<StatusPedido> status);
+    List<Pedido> findByStatusInOrderByDataCriacaoAsc(List<StatusPedido> statuses);
 }
