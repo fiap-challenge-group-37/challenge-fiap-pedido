@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 public class ProdutoRepositoryDatabase implements ProdutoRepository {
@@ -24,6 +25,18 @@ public class ProdutoRepositoryDatabase implements ProdutoRepository {
         ProdutoEntity entity = ProdutoEntity.fromDomain(produto);
         ProdutoEntity savedEntity = jpaRepository.save(entity);
         return savedEntity.toDomain();
+    }
+
+    @Override
+    @Transactional
+    public List<Produto> saveAll(List<Produto> produtos) {
+        List<ProdutoEntity> entities = produtos.stream()
+                .map(ProdutoEntity::fromDomain)
+                .collect(Collectors.toList());
+        List<ProdutoEntity> savedEntities = jpaRepository.saveAll(entities);
+        return savedEntities.stream()
+                .map(ProdutoEntity::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -52,5 +65,11 @@ public class ProdutoRepositoryDatabase implements ProdutoRepository {
         return jpaRepository.findByCategoria(categoria).stream()
                 .map(ProdutoEntity::toDomain)
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long count() {
+        return jpaRepository.count();
     }
 }
