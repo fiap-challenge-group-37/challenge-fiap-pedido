@@ -17,6 +17,12 @@ public class ClienteRepositoryDatabase implements ClienteRepository {
     }
 
     @Override
+    public Optional<Cliente> findByCpf(String cpf) {
+        return springDataClienteJpaRepository.findByCpf(cpf)
+                .map(ClienteEntity::toDomain);
+    }
+
+    @Override
     public Cliente save(Cliente cliente) {
         ClienteEntity entity = ClienteEntity.fromDomain(cliente);
         ClienteEntity saved = springDataClienteJpaRepository.save(entity);
@@ -39,5 +45,10 @@ public class ClienteRepositoryDatabase implements ClienteRepository {
     @Override
     public void deleteById(Long id) {
         springDataClienteJpaRepository.deleteById(id);
+    }
+
+    @Override
+    public boolean existsByCpf(String cpf) {
+        return springDataClienteJpaRepository.existsByCpf(cpf);
     }
 }

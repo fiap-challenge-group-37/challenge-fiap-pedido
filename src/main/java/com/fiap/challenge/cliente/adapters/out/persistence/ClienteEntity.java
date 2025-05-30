@@ -31,12 +31,12 @@ public class ClienteEntity {
     }
 
     public Cliente toDomain() {
-        return new Cliente(this.cpf, this.nome, this.email); // cpf aqui será encapsulado no VO Cpf
+        return new Cliente(this.cpf, this.nome, this.email);
     }
 
     public static ClienteEntity fromDomain(Cliente cliente) {
         return new ClienteEntity(
-                cliente.getCpf().getValue(), // pegar o valor do VO
+                cliente.getCpf().getValue(),
                 cliente.getNome(),
                 cliente.getEmail()
         );

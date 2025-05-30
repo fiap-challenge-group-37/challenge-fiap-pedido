@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface ClienteJpaRepository extends JpaRepository<ClienteEntity, Long> {
-    Optional<ClienteEntity> findByCpf(String cpf);
-    boolean existsByCpf(String cpf);
+public interface SessaoJpaRepository extends JpaRepository<SessaoEntity, Long> {
+    Optional<SessaoEntity> findByToken(String token);
+    Optional<SessaoEntity> findByCpf(String cpf);
 }
