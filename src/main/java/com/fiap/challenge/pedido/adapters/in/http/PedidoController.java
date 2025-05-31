@@ -82,7 +82,7 @@ public class PedidoController {
         List<Pedido> pedidos = listarPedidosUseCase.executar(Optional.ofNullable(status));
         List<PedidoResponseDTO> responseDTOs = pedidos.stream()
                 .map(PedidoResponseDTO::fromDomain)
-                .toList(); // Usando .toList() conforme sua preferência
+                .toList();
         return ResponseEntity.ok(responseDTOs);
     }
 

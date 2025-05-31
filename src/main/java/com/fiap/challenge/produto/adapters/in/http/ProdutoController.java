@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -61,7 +62,7 @@ public class ProdutoController {
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
-    @SecurityRequirement(name = "ApiKeyAuth")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ProdutoDTO> criarProduto(@Valid @RequestBody ProdutoDTO dto) {
         Produto novoProduto = criarProdutoUseCase.executar(dto);
@@ -85,7 +86,6 @@ public class ProdutoController {
     @SecurityRequirement(name = "ApiKeyAuth")
     @PutMapping("/{produto_id}")
     public ResponseEntity<ProdutoDTO> editarProduto(@PathVariable("produto_id") Long produtoId, @Valid @RequestBody ProdutoDTO dto) {
-        // Now returns Produto directly or throws ProdutoNaoEncontradoException
         Produto produtoAtualizado = atualizarProdutoUseCase.executar(produtoId, dto);
         return ResponseEntity.ok(ProdutoDTO.fromDomain(produtoAtualizado));
     }
@@ -102,7 +102,6 @@ public class ProdutoController {
     @SecurityRequirement(name = "ApiKeyAuth")
     @DeleteMapping("/{produto_id}")
     public ResponseEntity<Void> removerProduto(@PathVariable("produto_id") Long produtoId) {
-        // Now returns void or throws ProdutoNaoEncontradoException
         removerProdutoUseCase.removerPorId(produtoId);
         return ResponseEntity.noContent().build();
     }
@@ -124,7 +123,6 @@ public class ProdutoController {
 
         List<Produto> produtos;
         if (categoriaNome != null && !categoriaNome.trim().isEmpty()) {
-            // IllegalArgumentException will be caught by GlobalRestExceptionHandler
             Categoria categoriaEnum = Categoria.fromString(categoriaNome.toUpperCase());
             produtos = buscarProdutoPorCategoriaUseCase.executar(categoriaEnum);
         } else {
@@ -152,14 +150,8 @@ public class ProdutoController {
     })
     @GetMapping("/{produto_id}")
     public ResponseEntity<ProdutoDTO> buscarProdutoPorId(@PathVariable("produto_id") Long produtoId) {
-        // Now returns Produto directly or throws ProdutoNaoEncontradoException
         Produto produto = buscarProdutoPorIdUseCase.buscarPorId(produtoId);
         return ResponseEntity.ok(ProdutoDTO.fromDomain(produto));
     }
 
-    // Local Exception Handlers are REMOVED as they are handled by GlobalRestExceptionHandler
-    // @ExceptionHandler(MethodArgumentNotValidException.class) ...
-    // @ExceptionHandler(IllegalArgumentException.class) ...
-    // @ExceptionHandler(ApplicationServiceException.class) ...
-    // @ExceptionHandler(Exception.class) ...
 }
