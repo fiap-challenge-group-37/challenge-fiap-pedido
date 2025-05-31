@@ -1,6 +1,7 @@
 package com.fiap.challenge.pedido.domain.entities;
 
 public enum StatusPedido {
+    AGUARDANDO_PAGAMENTO("Aguardando pagamento"),
     RECEBIDO("Recebido"),
     EM_PREPARACAO("Em preparação"),
     PRONTO("Pronto"),

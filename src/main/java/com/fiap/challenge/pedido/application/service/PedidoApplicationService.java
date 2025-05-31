@@ -1,5 +1,6 @@
 package com.fiap.challenge.pedido.application.service;
 
+import com.fiap.challenge.pagamento.application.ports.out.MercadoPagoGateway;
 import com.fiap.challenge.pedido.application.exception.PedidoNaoEncontradoException;
 import com.fiap.challenge.pedido.application.exception.ValidacaoPedidoException;
 import com.fiap.challenge.pedido.application.port.in.*;
@@ -24,11 +25,13 @@ import java.util.Optional;
 public class PedidoApplicationService implements CriarPedidoUseCase, ListarPedidosUseCase, BuscarPedidoPorIdUseCase, AtualizarStatusPedidoUseCase {
 
     private final PedidoRepository pedidoRepository;
-    private final BuscarProdutoPorIdUseCase buscarProdutoPorIdUseCase; // Injetar para buscar produtos
+    private final BuscarProdutoPorIdUseCase buscarProdutoPorIdUseCase;
+    private final MercadoPagoGateway mercadoPagoGateway;
 
-    public PedidoApplicationService(PedidoRepository pedidoRepository, BuscarProdutoPorIdUseCase buscarProdutoPorIdUseCase) {
+    public PedidoApplicationService(PedidoRepository pedidoRepository, BuscarProdutoPorIdUseCase buscarProdutoPorIdUseCase, MercadoPagoGateway mercadoPagoGateway) {
         this.pedidoRepository = pedidoRepository;
         this.buscarProdutoPorIdUseCase = buscarProdutoPorIdUseCase;
+        this.mercadoPagoGateway = mercadoPagoGateway;
     }
 
     @Transactional
@@ -53,10 +56,9 @@ public class PedidoApplicationService implements CriarPedidoUseCase, ListarPedid
             ));
         }
 
-        Pedido novoPedido = new Pedido(pedidoDTO.getClienteId(), itensDominio);
-        // Para o "fake checkout", apenas salvar o pedido é suficiente. [cite: 30]
-        // A integração com pagamento (QRCode Mercado Pago) seria um próximo passo. [cite: 16]
-        return pedidoRepository.save(novoPedido);
+        Pedido pedido = pedidoRepository.save(new Pedido(pedidoDTO.getClienteId(), itensDominio));
+        pedido.setQrCode(mercadoPagoGateway.criarPagamento(pedido).getQrData());
+        return pedido;
     }
 
     @Transactional(readOnly = true)

@@ -1,4 +1,4 @@
-package com.fiap.challenge.pagamento.adapters.in.http.dto;
+package com.fiap.challenge.pagamento.adapters.out.mercadopago.dto;
 
 import lombok.Data;
 
