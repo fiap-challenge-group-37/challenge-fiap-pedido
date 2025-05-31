@@ -1,10 +1,13 @@
 package com.fiap.challenge.pedido.domain.entities;
 
+import lombok.Data;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
 
+@Data
 public class Pedido {
     private Long id;
     private Long clienteId; // Opcional, conforme a descrição [cite: 14]
@@ -13,6 +16,7 @@ public class Pedido {
     private StatusPedido status;
     private LocalDateTime dataCriacao;
     private LocalDateTime dataAtualizacao;
+    private String qrCode;
 
     // Construtor para novo pedido
     public Pedido(Long clienteId, List<ItemPedido> itens) {
@@ -21,7 +25,7 @@ public class Pedido {
         }
         this.clienteId = clienteId; // Pode ser nulo se o cliente não se identificar [cite: 14]
         this.itens = new ArrayList<>(itens); // Cria uma cópia defensiva
-        this.status = StatusPedido.RECEBIDO; // Status inicial [cite: 18]
+        this.status = StatusPedido.AGUARDANDO_PAGAMENTO; // Status inicial [cite: 18]
         this.dataCriacao = LocalDateTime.now();
         this.dataAtualizacao = LocalDateTime.now();
         calcularValorTotal();
@@ -63,40 +67,6 @@ public class Pedido {
         // Ex: não pode ir de PRONTO para EM_PREPARACAO
         this.status = novoStatus;
         this.dataAtualizacao = LocalDateTime.now();
-    }
-
-    // Getters
-    public Long getId() {
-        return id;
-    }
-
-    public Long getClienteId() {
-        return clienteId;
-    }
-
-    public List<ItemPedido> getItens() {
-        return new ArrayList<>(itens); // Retorna cópia defensiva
-    }
-
-    public BigDecimal getValorTotal() {
-        return valorTotal;
-    }
-
-    public StatusPedido getStatus() {
-        return status;
-    }
-
-    public LocalDateTime getDataCriacao() {
-        return dataCriacao;
-    }
-
-    public LocalDateTime getDataAtualizacao() {
-        return dataAtualizacao;
-    }
-
-    // Setters
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public void setClienteId(Long clienteId) {

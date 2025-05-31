@@ -23,6 +23,7 @@ services:
       - "8080:8080"
     environment:
       SPRING_DEVTOOLS_RESTART_ENABLED: "true"
+      MP_URL: "https://api.mercadopago.com/"
       MP_ACCESS_TOKEN: "APP_USR-5776470819795291-052622-9d0e16330f82db26018b57af9f373d82-2461182756"
       MP_USER_ID: "2461182756"
       MP_EXTERNAL_POS_ID: "113730756"

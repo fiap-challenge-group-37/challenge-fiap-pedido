@@ -1,5 +1,7 @@
 package com.fiap.challenge.pedido.application.service;
 
+import com.fiap.challenge.pagamento.adapters.out.mercadopago.dto.MercadoPagoQrCodeResponse;
+import com.fiap.challenge.pagamento.application.ports.out.MercadoPagoGateway;
 import com.fiap.challenge.pedido.adapters.in.http.dto.ItemPedidoDTO;
 import com.fiap.challenge.pedido.adapters.in.http.dto.PedidoDTO;
 import com.fiap.challenge.pedido.application.exception.PedidoNaoEncontradoException;
@@ -41,6 +43,9 @@ class PedidoApplicationServiceTest {
     @Mock
     private BuscarProdutoPorIdUseCase buscarProdutoPorIdUseCase;
 
+    @Mock
+    private MercadoPagoGateway mercadoPagoGateway;
+
     @InjectMocks
     private PedidoApplicationService pedidoApplicationService;
 
@@ -49,6 +54,8 @@ class PedidoApplicationServiceTest {
     private Produto produtoValido;
     private Pedido pedidoValido;
     private ItemPedido itemPedidoDominioValido; // Adicionado para reuso
+    private MercadoPagoQrCodeResponse mockResponse;
+
 
     @BeforeEach
     void setUp() {
@@ -64,6 +71,9 @@ class PedidoApplicationServiceTest {
 
         itemPedidoDominioValido = new ItemPedido(produtoValido.getId(), produtoValido.getNome(), itemPedidoDTOValido.getQuantidade(), produtoValido.getPreco());
         pedidoValido = new Pedido(1L, 10L, Collections.singletonList(itemPedidoDominioValido), BigDecimal.valueOf(51.00), StatusPedido.RECEBIDO, LocalDateTime.now(), LocalDateTime.now());
+
+        mockResponse = new MercadoPagoQrCodeResponse();
+        mockResponse.setQrData("qr-code-mock");
     }
 
     // --- Testes para criarPedido (executar(PedidoDTO)) ---
@@ -81,6 +91,9 @@ class PedidoApplicationServiceTest {
                     pedidoParaSalvar.getDataCriacao(), pedidoParaSalvar.getDataAtualizacao());
         });
 
+        when(mercadoPagoGateway.criarPagamento(any()))
+                .thenReturn(mockResponse);
+
         // Act
         Pedido resultado = pedidoApplicationService.executar(pedidoDTOValido);
 
@@ -91,9 +104,12 @@ class PedidoApplicationServiceTest {
         assertEquals(produtoValido.getId(), resultado.getItens().get(0).getProdutoId());
         assertEquals(itemPedidoDTOValido.getQuantidade(), resultado.getItens().get(0).getQuantidade());
         assertEquals(produtoValido.getPreco().multiply(BigDecimal.valueOf(itemPedidoDTOValido.getQuantidade())), resultado.getValorTotal());
-        assertEquals(StatusPedido.RECEBIDO, resultado.getStatus());
+        assertEquals(StatusPedido.AGUARDANDO_PAGAMENTO, resultado.getStatus());
+        assertEquals("qr-code-mock", resultado.getQrCode());
+
         verify(buscarProdutoPorIdUseCase, times(1)).buscarPorId(produtoValido.getId());
         verify(pedidoRepository, times(1)).save(any(Pedido.class));
+        verify(mercadoPagoGateway, times(1)).criarPagamento(any());
     }
 
     @Test
