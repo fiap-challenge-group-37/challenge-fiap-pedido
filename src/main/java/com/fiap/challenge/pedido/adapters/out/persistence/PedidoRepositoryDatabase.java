@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-// O import java.util.stream.Collectors; não é mais estritamente necessário se você usar apenas .toList()
 
 @Repository
 public class PedidoRepositoryDatabase implements PedidoRepository {

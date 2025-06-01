@@ -13,9 +13,9 @@ import java.util.List;
 public class PedidoResponseDTO {
     private Long id;
     private Long clienteId;
-    private List<ItemPedidoResponseDTO> itens; // Usaremos um DTO específico para itens na resposta
+    private List<ItemPedidoResponseDTO> itens;
     private BigDecimal valorTotal;
-    private String status; // String para facilitar a exibição
+    private String status;
     private LocalDateTime dataCriacao;
     private LocalDateTime dataAtualizacao;
     private String qrCode;
@@ -29,7 +29,7 @@ public class PedidoResponseDTO {
                 pedido.getClienteId(),
                 itemDTOs,
                 pedido.getValorTotal(),
-                pedido.getStatus().getDescricao(), // Usar a descrição do Enum
+                pedido.getStatus().getDescricao(),
                 pedido.getDataCriacao(),
                 pedido.getDataAtualizacao(),
                 pedido.getQrCode()

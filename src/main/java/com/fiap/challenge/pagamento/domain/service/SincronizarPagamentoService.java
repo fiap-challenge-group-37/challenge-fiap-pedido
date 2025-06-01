@@ -6,7 +6,6 @@ import com.fiap.challenge.pagamento.application.ports.in.SincronizarPagamentoUse
 import com.fiap.challenge.pagamento.application.ports.out.MercadoPagoGateway;
 import com.fiap.challenge.pedido.application.port.in.AtualizarStatusPedidoUseCase;
 import com.fiap.challenge.pedido.application.port.in.ListarPedidosUseCase;
-import com.fiap.challenge.pedido.application.service.PedidoApplicationService;
 import com.fiap.challenge.pedido.domain.entities.Pedido;
 import com.fiap.challenge.pedido.domain.entities.StatusPedido;
 import lombok.RequiredArgsConstructor;

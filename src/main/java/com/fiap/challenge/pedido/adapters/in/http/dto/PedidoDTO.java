@@ -7,11 +7,11 @@ import java.util.List;
 
 public class PedidoDTO {
 
-    private Long clienteId; // Opcional, o cliente pode não se identificar [cite: 14]
+    private Long clienteId;
 
     @NotEmpty(message = "Lista de itens não pode ser vazia.")
     @Size(min = 1, message = "Pedido deve conter ao menos um item.")
-    @Valid // Para validar os ItemPedidoDTO dentro da lista
+    @Valid
     private List<ItemPedidoDTO> itens;
 
     // Getters e Setters

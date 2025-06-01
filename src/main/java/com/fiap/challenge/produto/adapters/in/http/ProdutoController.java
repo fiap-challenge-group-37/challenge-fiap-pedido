@@ -1,19 +1,17 @@
 package com.fiap.challenge.produto.adapters.in.http;
 
-import com.fiap.challenge.config.exception.dto.ErrorResponseDTO; // New import for Swagger
+import com.fiap.challenge.config.exception.dto.ErrorResponseDTO;
 import com.fiap.challenge.produto.adapters.in.http.dto.ProdutoDTO;
-// ApplicationServiceException import can be removed if not thrown directly from controller methods
 import com.fiap.challenge.produto.application.port.in.*;
 import com.fiap.challenge.produto.domain.entities.Categoria;
 import com.fiap.challenge.produto.domain.entities.Produto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.media.Content; // New import for Swagger
-import io.swagger.v3.oas.annotations.media.Schema; // New import for Swagger
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -24,11 +22,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/produtos")
 @Tag(name = "Produto Controller", description = "Operações para visualização e gerenciamento de produtos")
 public class ProdutoController {
+
     private final CriarProdutoUseCase criarProdutoUseCase;
     private final AtualizarProdutoUseCase atualizarProdutoUseCase;
     private final RemoverProdutoUseCase removerProdutoUseCase;
@@ -54,9 +52,10 @@ public class ProdutoController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Produto cadastrado com sucesso",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProdutoDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos para o produto (ex: categoria inválida)",
+            @ApiResponse(responseCode = "400", description = "Dados inválidos para o produto",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDTO.class))),
-            @ApiResponse(responseCode = "401", description = "Não autorizado - Requer API Key"),
+            @ApiResponse(responseCode = "401", description = "Não autorizado - Requer token JWT",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDTO.class))),
             @ApiResponse(responseCode = "422", description = "Erro de validação nos dados enviados",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDTO.class))),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
@@ -73,9 +72,10 @@ public class ProdutoController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Produto atualizado com sucesso",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProdutoDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos para atualização ou categoria inválida",
+            @ApiResponse(responseCode = "400", description = "Dados inválidos para atualização",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDTO.class))),
-            @ApiResponse(responseCode = "401", description = "Não autorizado - Requer API Key"),
+            @ApiResponse(responseCode = "401", description = "Não autorizado - Requer token JWT",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "Produto não encontrado",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDTO.class))),
             @ApiResponse(responseCode = "422", description = "Erro de validação nos dados enviados",
@@ -85,7 +85,8 @@ public class ProdutoController {
     })
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{produto_id}")
-    public ResponseEntity<ProdutoDTO> editarProduto(@PathVariable("produto_id") Long produtoId, @Valid @RequestBody ProdutoDTO dto) {
+    public ResponseEntity<ProdutoDTO> editarProduto(@PathVariable("produto_id") Long produtoId,
+                                                    @Valid @RequestBody ProdutoDTO dto) {
         Produto produtoAtualizado = atualizarProdutoUseCase.executar(produtoId, dto);
         return ResponseEntity.ok(ProdutoDTO.fromDomain(produtoAtualizado));
     }
@@ -93,7 +94,8 @@ public class ProdutoController {
     @Operation(summary = "Remover produto por ID (Administrativo)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Produto removido com sucesso"),
-            @ApiResponse(responseCode = "401", description = "Não autorizado - Requer API Key"),
+            @ApiResponse(responseCode = "401", description = "Não autorizado - Requer token JWT",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "Produto não encontrado",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDTO.class))),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
@@ -109,7 +111,7 @@ public class ProdutoController {
     @Operation(summary = "Listar todos os produtos ou filtrar por categoria (Público)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de produtos",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProdutoDTO.class))), // Should be array
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProdutoDTO.class))),
             @ApiResponse(responseCode = "400", description = "Categoria inválida fornecida no filtro",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDTO.class))),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor",
@@ -117,14 +119,13 @@ public class ProdutoController {
     })
     @GetMapping
     public ResponseEntity<List<ProdutoDTO>> listarOuBuscarPorCategoria(
-            @Parameter(name = "categoria", description = "Nome da categoria para filtrar os produtos (opcional). Valores: LANCHE, ACOMPANHAMENTO, BEBIDA, SOBREMESA",
-                    in = ParameterIn.QUERY, schema = @Schema(type = "string", enumAsRef = true, allowableValues = {"LANCHE", "ACOMPANHAMENTO", "BEBIDA", "SOBREMESA"}))
-            @RequestParam(required = false) String categoriaNome) {
+            @Parameter(name = "categoria", description = "Nome da categoria (LANCHE, ACOMPANHAMENTO, BEBIDA, SOBREMESA)",
+                    in = ParameterIn.QUERY, schema = @Schema(type = "string", allowableValues = {"LANCHE", "ACOMPANHAMENTO", "BEBIDA", "SOBREMESA"}))
+            @RequestParam(required = false) Categoria categoria) {
 
         List<Produto> produtos;
-        if (categoriaNome != null && !categoriaNome.trim().isEmpty()) {
-            Categoria categoriaEnum = Categoria.fromString(categoriaNome.toUpperCase());
-            produtos = buscarProdutoPorCategoriaUseCase.executar(categoriaEnum);
+        if (categoria != null) {
+            produtos = buscarProdutoPorCategoriaUseCase.executar(categoria);
         } else {
             produtos = listarTodosProdutosUseCase.executar();
         }
@@ -153,5 +154,4 @@ public class ProdutoController {
         Produto produto = buscarProdutoPorIdUseCase.buscarPorId(produtoId);
         return ResponseEntity.ok(ProdutoDTO.fromDomain(produto));
     }
-
 }

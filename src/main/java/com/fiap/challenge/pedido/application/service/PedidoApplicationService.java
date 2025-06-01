@@ -8,8 +8,8 @@ import com.fiap.challenge.pedido.domain.entities.ItemPedido;
 import com.fiap.challenge.pedido.domain.entities.Pedido;
 import com.fiap.challenge.pedido.domain.entities.StatusPedido;
 import com.fiap.challenge.pedido.domain.port.PedidoRepository;
-import com.fiap.challenge.produto.domain.entities.Produto; // Para buscar detalhes do produto
-import com.fiap.challenge.produto.application.port.in.BuscarProdutoPorIdUseCase; // Para buscar detalhes do produto
+import com.fiap.challenge.produto.domain.entities.Produto;
+import com.fiap.challenge.produto.application.port.in.BuscarProdutoPorIdUseCase;
 
 import com.fiap.challenge.pedido.adapters.in.http.dto.PedidoDTO;
 import com.fiap.challenge.pedido.adapters.in.http.dto.ItemPedidoDTO;
@@ -43,10 +43,7 @@ public class PedidoApplicationService implements CriarPedidoUseCase, ListarPedid
         }
 
         for (ItemPedidoDTO itemDTO : pedidoDTO.getItens()) {
-            // Buscar o produto para obter nome e preço, garantindo que ele existe e está ativo
-            // (Implementação do buscarProdutoPorIdUseCase no módulo de produto deve lançar exceção se não encontrar)
             Produto produto = buscarProdutoPorIdUseCase.buscarPorId(itemDTO.getProdutoId());
-            // Você pode adicionar mais validações aqui, como verificar se o produto está disponível
 
             itensDominio.add(new ItemPedido(
                     produto.getId(),
@@ -78,14 +75,6 @@ public class PedidoApplicationService implements CriarPedidoUseCase, ListarPedid
                 throw new ValidacaoPedidoException("Status inválido fornecido: " + statusOpt.get() + ". " + e.getMessage());
             }
         }
-        // Se o status não for fornecido ou for vazio, listar todos os pedidos que não estão finalizados
-        // e ordená-los: PRONTO primeiro, depois EM_PREPARACAO, depois RECEBIDO.
-        // Esta lógica de ordenação pode ser mais complexa e ficar no repositório.
-        // Por simplicidade aqui, vamos apenas chamar o findAll se o status não for válido.
-        // No Tech Challenge pede para "Listar os pedidos" [cite: 31] e "Acompanhamento de pedidos" [cite: 23]
-        // A ordem da fila é: prontos > em preparação > recebidos.
-        // Isso pode ser implementado no repositório ou aqui com multiplas chamadas e concatenação.
-        // Para simplificar, vamos retornar todos se o status for inválido/ausente.
         return pedidoRepository.findAll();
     }
 

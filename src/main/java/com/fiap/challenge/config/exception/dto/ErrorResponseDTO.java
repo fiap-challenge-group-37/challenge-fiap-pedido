@@ -20,7 +20,6 @@ public class ErrorResponseDTO {
         this.path = path;
     }
 
-    // Getters (e Setters se necessário, mas para DTO de resposta getters são suficientes)
     public LocalDateTime getTimestamp() {
         return timestamp;
     }

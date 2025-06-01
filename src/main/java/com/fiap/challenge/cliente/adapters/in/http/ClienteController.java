@@ -47,7 +47,7 @@ public class ClienteController {
         );
     }
 
-    @Operation(summary = "Cadastrar cliente")
+    @Operation(summary = "Cadastrar cliente (Público)")
     @PostMapping
     public ResponseEntity<ClienteDTO> cadastrar(@RequestBody ClienteDTO dto) {
         if (clienteRepository.existsByCpf(dto.getCpf())) {
@@ -58,7 +58,7 @@ public class ClienteController {
         return ResponseEntity.status(HttpStatus.CREATED).body(toDTO(salvo));
     }
 
-    @Operation(summary = "Autenticar cliente")
+    @Operation(summary = "Autenticar cliente (Público)")
     @PostMapping("/auth")
     public ResponseEntity<AuthResponseDTO> autenticar(@RequestBody AuthRequestDTO authRequest) {
         try {
