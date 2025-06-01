@@ -30,7 +30,7 @@ class StatusPedidoTest {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             StatusPedido.fromString(invalido);
         });
-        assertEquals("Nenhum status encontrado com o texto: " + invalido + ". Valores permitidos: RECEBIDO, EM_PREPARACAO, PRONTO, FINALIZADO.", exception.getMessage());
+        assertEquals("Nenhum status encontrado com o texto: " + invalido + ". Valores permitidos: AGUARDANDO_PAGAMENTO, RECEBIDO, EM_PREPARACAO, PRONTO, FINALIZADO.", exception.getMessage());
     }
 
     @Test

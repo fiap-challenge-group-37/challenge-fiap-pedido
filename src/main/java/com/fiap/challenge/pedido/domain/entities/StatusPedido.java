@@ -23,6 +23,6 @@ public enum StatusPedido {
                 return b;
             }
         }
-        throw new IllegalArgumentException("Nenhum status encontrado com o texto: " + text + ". Valores permitidos: RECEBIDO, EM_PREPARACAO, PRONTO.");
+        throw new IllegalArgumentException("Nenhum status encontrado com o texto: " + text + ". Valores permitidos: AGUARDANDO_PAGAMENTO, RECEBIDO, EM_PREPARACAO, PRONTO, FINALIZADO.");
     }
 }
