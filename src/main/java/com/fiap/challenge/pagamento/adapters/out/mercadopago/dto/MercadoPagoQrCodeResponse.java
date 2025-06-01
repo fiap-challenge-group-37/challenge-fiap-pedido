@@ -1,4 +1,4 @@
-package com.fiap.challenge.pagamento.adapters.in.http.dto;
+package com.fiap.challenge.pagamento.adapters.out.mercadopago.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

@@ -1,6 +1,7 @@
 package com.fiap.challenge.pedido.domain.entities;
 
 public enum StatusPedido {
+    AGUARDANDO_PAGAMENTO("Aguardando pagamento"),
     RECEBIDO("Recebido"),
     EM_PREPARACAO("Em preparação"),
     PRONTO("Pronto"),
@@ -22,6 +23,6 @@ public enum StatusPedido {
                 return b;
             }
         }
-        throw new IllegalArgumentException("Nenhum status encontrado com o texto: " + text + ". Valores permitidos: RECEBIDO, EM_PREPARACAO, PRONTO, FINALIZADO.");
+        throw new IllegalArgumentException("Nenhum status encontrado com o texto: " + text + ". Valores permitidos: RECEBIDO, EM_PREPARACAO, PRONTO.");
     }
 }

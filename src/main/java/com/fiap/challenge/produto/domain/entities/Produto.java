@@ -8,7 +8,6 @@ public class Produto {
     private Categoria categoria;
     private BigDecimal preco;
     private String descricao;
-    // private String imagem; // Futura implementação de imagem
 
     public Produto(String nome, Categoria categoria, BigDecimal preco, String descricao) {
         if (nome == null || nome.trim().isEmpty()) {
@@ -34,7 +33,7 @@ public class Produto {
         this.id = id;
     }
 
-    // Getters
+
     public Long getId() {
         return id;
     }
@@ -55,7 +54,6 @@ public class Produto {
         return descricao;
     }
 
-    // Setters
     public void setNome(String nome) {
         if (nome == null || nome.trim().isEmpty()) {
             throw new IllegalArgumentException("Nome do produto não pode ser vazio.");

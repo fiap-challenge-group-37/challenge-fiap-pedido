@@ -4,13 +4,13 @@ import java.math.BigDecimal;
 
 public class ItemPedido {
     private Long id;
-    private Long produtoId; // Referência ao ID do produto
-    private String nomeProduto; // Pode ser útil para exibição sem consultar o produto
+    private Long produtoId;
+    private String nomeProduto;
     private Integer quantidade;
     private BigDecimal precoUnitario;
     private BigDecimal precoTotal;
 
-    // Construtor para criação
+
     public ItemPedido(Long produtoId, String nomeProduto, Integer quantidade, BigDecimal precoUnitario) {
         if (produtoId == null) {
             throw new IllegalArgumentException("ID do produto não pode ser nulo.");
@@ -31,16 +31,13 @@ public class ItemPedido {
         this.precoTotal = precoUnitario.multiply(BigDecimal.valueOf(quantidade));
     }
 
-    // Construtor para reconstrução (ex: do banco de dados)
     public ItemPedido(Long id, Long produtoId, String nomeProduto, Integer quantidade, BigDecimal precoUnitario, BigDecimal precoTotal) {
         this(produtoId, nomeProduto, quantidade, precoUnitario);
         this.id = id;
-        // Recalcula para garantir consistência, ou confia no valor do BD
         this.precoTotal = (precoTotal != null) ? precoTotal : this.precoUnitario.multiply(BigDecimal.valueOf(this.quantidade));
     }
 
 
-    // Getters
     public Long getId() {
         return id;
     }
@@ -65,7 +62,6 @@ public class ItemPedido {
         return precoTotal;
     }
 
-    // Setters (com validações se necessário)
     public void setId(Long id) {
         this.id = id;
     }

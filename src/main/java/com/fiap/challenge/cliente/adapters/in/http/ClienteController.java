@@ -47,7 +47,7 @@ public class ClienteController {
         );
     }
 
-    @Operation(summary = "Cadastrar cliente")
+    @Operation(summary = "Cadastrar cliente (Público)")
     @PostMapping
     public ResponseEntity<ClienteDTO> cadastrar(@RequestBody ClienteDTO dto) {
         if (clienteRepository.existsByCpf(dto.getCpf())) {
@@ -58,20 +58,28 @@ public class ClienteController {
         return ResponseEntity.status(HttpStatus.CREATED).body(toDTO(salvo));
     }
 
-    @Operation(summary = "Autenticar cliente")
+    @Operation(summary = "Autenticar cliente (Público)")
     @PostMapping("/auth")
     public ResponseEntity<AuthResponseDTO> autenticar(@RequestBody AuthRequestDTO authRequest) {
         try {
             String cpf = authRequest.getCpf();
-            Optional<Cliente> clienteOptional = clienteRepository.findByCpf(cpf);
-            if (clienteOptional.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            String token;
+            String roleParaToken;
+
+            if (cpf == null || cpf.trim().isEmpty()) {
+                roleParaToken = "ROLE_VISITANTE";
+                token = jwtService.generateToken("visitante", List.of(roleParaToken));
+            } else {
+                Optional<Cliente> clienteOptional = clienteRepository.findByCpf(cpf);
+                if (clienteOptional.isEmpty()) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                }
+                roleParaToken = clienteOptional.get().getRole();
+                token = jwtService.generateToken(cpf, List.of(roleParaToken));
             }
-            String userRole = clienteOptional.get().getRole();
-            String token = jwtService.generateToken(cpf, List.of(userRole));
 
             Sessao sessao = new Sessao();
-            sessao.setCpf(cpf);
+            sessao.setCpf((cpf == null || cpf.trim().isEmpty()) ? "visitante" : cpf);
             sessao.setToken(token);
             sessao.setDataCriacao(new Date());
             sessaoRepository.save(sessao);
