@@ -1,7 +1,7 @@
 package com.fiap.challenge.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import com.fiap.challenge.cliente.security.JwtAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -9,9 +9,9 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 
 @EnableMethodSecurity(prePostEnabled = true)
 @EnableWebSecurity
@@ -28,6 +28,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
+                                "/api/actuator/health",
                                 "/api/cliente", "/api/cliente/**",
                                 "/cliente", "/cliente/**",
                                 "/api/swagger-ui.html", "/swagger-ui.html",
