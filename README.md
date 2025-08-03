@@ -22,6 +22,7 @@ Implementar um sistema de autoatendimento de fast food que permita:
 - **Gerenciamento de Dependências:** Maven
 - **Banco de Dados:** MySQL
 - **Containers:** Docker e Docker Compose
+- **Orquestração Local:** Kubernetes (Minikube)
 
 ---
 
@@ -51,9 +52,13 @@ Implementar um sistema de autoatendimento de fast food que permita:
 
 ## Instalação do Projeto
 
-> **Pré-requisitos**: Ter o Docker e o Docker Compose instalados na máquina.
+> **Pré-requisitos**:
+> - Ter o Docker e o Docker Compose instalados na máquina.
+> - (Opcional) Para rodar no Kubernetes, ter o [Minikube](https://minikube.sigs.k8s.io/) instalado.
 
-### Passo 1 - Clonar o Repositório
+---
+
+### 1. Clonar o Repositório
 
 ```bash
 git clone git@github.com:samuelvinib/challenge-fiap.git
@@ -66,18 +71,17 @@ cd challenge-fiap
 
 ### Ambiente de Desenvolvimento
 
-O ambiente de desenvolvimento permite hot-reload do código Java, facilitando testes e ajustes rápidos.
+Permite hot-reload do código Java, facilitando testes e ajustes rápidos.
 
 1. **Suba os containers em modo desenvolvimento (default):**
 
-```bash
-docker compose up -d --build
-```
+   ```bash
+   docker compose up -d --build
+   ```
+
 2. **Acesse a aplicação:**
 
-```bash
-http://localhost:8080
-```
+   [http://localhost:8080](http://localhost:8080)
 
 ---
 
@@ -87,14 +91,53 @@ No ambiente de produção, a imagem é otimizada usando multi-stage build, sem i
 
 1. **Suba os containers para produção:**
 
-```bash
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
-```
+   ```bash
+   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+   ```
+
 2. **Acesse a aplicação:**
 
-```bash
-http://localhost:8080
-```
+   [http://localhost:8080](http://localhost:8080)
+
+---
+
+## Executando com Minikube (Kubernetes Local)
+
+> **Pré-requisitos**: Ter o Minikube instalado e em execução.
+
+1. **Inicie o Minikube (caso ainda não esteja rodando):**
+
+   ```bash
+   minikube start
+   ```
+
+2. **Aplique os manifests do Kubernetes:**
+
+   ```bash
+   kubectl apply -f k8s/
+   ```
+
+3. **Descubra o IP do Minikube:**
+
+   ```bash
+   minikube ip
+   ```
+
+   > Exemplo de saída: `192.168.49.2`
+
+4. **Acesse a aplicação pelo navegador:**
+
+   ```
+   http://<IP-DO-MINIKUBE>:30080/api/
+   ```
+   > Exemplo: [http://192.168.49.2:30080/api/](http://192.168.49.2:30080/api/)
+
+5. **Acesse a documentação da API (Swagger UI):**
+
+   ```
+   http://<IP-DO-MINIKUBE>:30080/api/
+   ```
+   > Exemplo: [http://192.168.49.2:30080/api/](http://192.168.49.2:30080/api/)
 
 ---
 
@@ -105,10 +148,33 @@ http://localhost:8080
 
 ---
 
+## Dicas
+
+- Caso não consiga acessar a aplicação no Minikube, verifique se o serviço está disponível rodando:
+  ```bash
+  kubectl get svc
+  ```
+  E confirme que o serviço `lanchonete-api-service` está com um `NodePort` (ex: 30080).
+- Se tiver problemas de conexão, confira o selector do service e os endpoints com:
+  ```bash
+  kubectl get endpoints lanchonete-api-service
+  ```
+- Para acessar localmente via port-forward:
+  ```bash
+  kubectl port-forward svc/lanchonete-api-service 8080:80
+  ```
+  E acesse: [http://localhost:8080/api/](http://localhost:8080/api/)
+
+---
+
 ## Documentação da API
 
-Após iniciar a aplicação, a documentação da API pode ser acessada pelo Swagger em:
+Após iniciar a aplicação, acesse a documentação no navegador:
 
-```bash
-http://localhost:8080/api/swagger-ui/index.html
-```
+- **Docker Compose:**  
+  [http://localhost:8080/api/](http://localhost:8080/api/)
+
+- **Kubernetes/Minikube:**  
+  [http://<IP-DO-MINIKUBE>:30080/api/](http://192.168.49.2:30080/api/)
+
+---
