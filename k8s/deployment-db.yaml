@@ -21,7 +21,10 @@ spec:
             - name: MYSQL_DATABASE
               value: lanchonete
             - name: MYSQL_ROOT_PASSWORD
-              value: root
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: MYSQL_ROOT_PASSWORD
             - name: MYSQL_USER
               valueFrom:
                 secretKeyRef:
@@ -32,3 +35,9 @@ spec:
                 secretKeyRef:
                   name: app-secrets
                   key: DATABASE_PASSWORD
+          volumeMounts:
+            - name: mysql-persistent-storage
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: mysql-persistent-storage
+          emptyDir: {}
