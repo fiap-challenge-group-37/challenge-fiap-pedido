@@ -27,6 +27,7 @@ services:
       MP_ACCESS_TOKEN: "APP_USR-5776470819795291-052622-9d0e16330f82db26018b57af9f373d82-2461182756"
       MP_USER_ID: "2461182756"
       MP_EXTERNAL_POS_ID: "113730756"
+      MP_WEBHOOK: "https://webhook:site/6e2fdc60-4f46-41de-bc2e-887173c43e62"
 
     volumes:
       - ./:/app

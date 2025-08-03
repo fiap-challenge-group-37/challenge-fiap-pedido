@@ -13,4 +13,5 @@ public interface PedidoRepository {
     List<Pedido> findByStatus(StatusPedido status);
     List<Pedido> findByStatusInOrderByDataCriacaoAsc(List<StatusPedido> statuses);
     void saveQRCode(Pedido pedido);
+    Optional<Pedido> findByExternalId(String externalID);
 }

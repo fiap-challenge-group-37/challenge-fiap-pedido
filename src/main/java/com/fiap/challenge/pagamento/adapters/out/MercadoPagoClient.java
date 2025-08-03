@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.fiap.challenge.pagamento.adapters.out.mercadopago.dto.MercadoPagoPagamentoResponse;
 import com.fiap.challenge.pagamento.adapters.out.mercadopago.dto.MercadoPagoQrCodeResponse;
+import com.fiap.challenge.pagamento.adapters.out.mercadopago.dto.PagamentoDTO;
 import com.fiap.challenge.pagamento.application.ports.out.MercadoPagoGateway;
 import com.fiap.challenge.pedido.domain.entities.Pedido;
 import org.slf4j.Logger;
@@ -42,7 +43,7 @@ public class MercadoPagoClient implements MercadoPagoGateway {
 
         Map<String, Object> body = new HashMap<>();
         body.put("external_reference", pedido.getExternalID());
-        body.put("notification_url", "https://www.seusite.com/notificacao");
+        body.put("notification_url", properties.getWebhookPagamento());
         body.put("title", "Compra na loja");
         body.put("description", "Pedido " + pedido.getId());
         body.put("total_amount", pedido.getValorTotal());
@@ -99,6 +100,35 @@ public class MercadoPagoClient implements MercadoPagoGateway {
                     MercadoPagoPagamentoResponse.class
             );
 
+            return response.getBody();
+        } catch (Exception e) {
+            logger.error("Erro ao buscar pagamento no MercadoPago", e);
+            throw new RuntimeException("Falha ao buscar pagamento no MercadoPago");
+        }
+    }
+
+    @Override
+    public PagamentoDTO getPaymentById(String paymentId) {
+        DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(properties.getUrl());
+        UriBuilder builder = factory.builder()
+                .path("v1/payments/")
+                .path(paymentId);
+
+        String url = builder.build().toString();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(properties.getAccessToken());
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<PagamentoDTO> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    entity,
+                    PagamentoDTO.class
+            );
             return response.getBody();
         } catch (Exception e) {
             logger.error("Erro ao buscar pagamento no MercadoPago", e);

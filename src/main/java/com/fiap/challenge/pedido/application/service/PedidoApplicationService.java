@@ -79,6 +79,11 @@ public class PedidoApplicationService implements CriarPedidoUseCase, ListarPedid
         return pedidoRepository.findAll();
     }
 
+    @Override
+    public Pedido executar(String externalID) {
+        return pedidoRepository.findByExternalId(externalID)
+                .orElseThrow(() -> new PedidoNaoEncontradoException("Pedido com External id " + externalID + " não encontrado."));
+    }
 
     @Transactional(readOnly = true)
     @Override

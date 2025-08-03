@@ -22,4 +22,7 @@ public class MercadoPagoProperties {
 
     @Value("${MP_URL}")
     private String url;
+
+    @Value("${MP_WEBHOOK}")
+    private String webhookPagamento;
 }
