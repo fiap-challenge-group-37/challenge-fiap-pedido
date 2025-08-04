@@ -9,3 +9,4 @@ data:
   MP_URL: "https://api.mercadopago.com/"
   MP_USER_ID: "2461182756"
   MP_EXTERNAL_POS_ID: "113730756"
+  MP_WEBHOOK: "MP_WEBHOOK"
