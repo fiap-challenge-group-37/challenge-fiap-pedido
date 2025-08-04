@@ -1,0 +1,11 @@
+services:
+  app:
+    build:
+      target: dev
+    environment:
+      SPRING_DEVTOOLS_RESTART_ENABLED: "true"
+    volumes:
+      - ./src:/app/src
+      - ./target/classes:/app/target/classes
+      - ./pom.xml:/app/pom.xml
+    command: ["mvn", "spring-boot:run"]

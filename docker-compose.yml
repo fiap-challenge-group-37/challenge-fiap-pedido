@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   mysql:
     image: mysql:8.0
@@ -10,6 +12,8 @@ services:
       MYSQL_PASSWORD: admin
     ports:
       - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
 
   app:
     build:
@@ -22,14 +26,11 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_DEVTOOLS_RESTART_ENABLED: "true"
+      SPRING_DEVTOOLS_RESTART_ENABLED: "false"
       MP_URL: "https://api.mercadopago.com/"
       MP_ACCESS_TOKEN: "APP_USR-5776470819795291-052622-9d0e16330f82db26018b57af9f373d82-2461182756"
       MP_USER_ID: "2461182756"
       MP_EXTERNAL_POS_ID: "113730756"
 
-    volumes:
-      - ./:/app
-    working_dir: /app
 volumes:
   mysql_data:
