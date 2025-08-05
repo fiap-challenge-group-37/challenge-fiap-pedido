@@ -48,6 +48,21 @@ Implementar um sistema de autoatendimento para fast food que permita:
 - Gestão de clientes
 - Acompanhamento de pedidos em tempo real
 
+
+---
+## Entregáveis
+
+---
+### Desenho do projeto
+
+- [Desenho do projeto](desenho-arquitetura.jpeg)
+
+
+### Video
+
+- [Video apresentação](https://youtu.be/43vfyDISez0)
+
+
 ---
 
 ## Instalação do Projeto
