@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface ListarPedidosUseCase {
     List<Pedido> executar();
     List<Pedido> executar(Optional<String> status); // Para filtrar por status
+    Pedido executar(String externalID); // Para filtrar por status
 }

@@ -28,6 +28,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String uri = request.getRequestURI();
         return uri.startsWith("/api/cliente")
                 || uri.startsWith("/cliente")
+                || uri.startsWith("/api/actuator/health")
+                || uri.startsWith("/api/health")
+                || uri.startsWith("/api/webhook")
+                || uri.startsWith("/webhook")
                 || uri.startsWith("/api/swagger-ui.html")
                 || uri.startsWith("/swagger-ui.html")
                 || uri.startsWith("/api/swagger-ui")

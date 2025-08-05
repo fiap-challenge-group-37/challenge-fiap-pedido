@@ -6,10 +6,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PedidoJpaRepository extends JpaRepository<PedidoEntity, Long> {
     List<PedidoEntity> findByStatus(StatusPedido status);
+
     @Query("SELECT p FROM PedidoEntity p WHERE p.status <> com.fiap.challenge.pedido.domain.entities.StatusPedido.FINALIZADO " +
             "ORDER BY CASE p.status " +
             "WHEN com.fiap.challenge.pedido.domain.entities.StatusPedido.PRONTO THEN 1 " +
@@ -19,4 +21,6 @@ public interface PedidoJpaRepository extends JpaRepository<PedidoEntity, Long> {
     List<PedidoEntity> findPedidosNaoFinalizadosOrdenadosParaCozinha();
 
     List<PedidoEntity> findByStatusInOrderByDataCriacaoAsc(List<StatusPedido> statuses);
+
+    Optional<PedidoEntity> findByExternalID(String externalID);
 }

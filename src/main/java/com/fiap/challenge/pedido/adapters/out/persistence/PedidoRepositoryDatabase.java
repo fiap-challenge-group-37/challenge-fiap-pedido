@@ -37,6 +37,11 @@ public class PedidoRepositoryDatabase implements PedidoRepository {
     }
 
     @Override
+    public Optional<Pedido> findByExternalId(String externalID) {
+        return jpaRepository.findByExternalID(externalID).map(PedidoEntity::toDomain);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public Optional<Pedido> findById(Long id) {
         return jpaRepository.findById(id).map(PedidoEntity::toDomain);
