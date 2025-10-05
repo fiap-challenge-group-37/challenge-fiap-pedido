@@ -29,11 +29,17 @@ jobs:
 
       - name: Build, tag, and push image to Amazon ECR
         env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: lanchonete-app
-          IMAGE_TAG: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+          IMAGE_TAG: latest
         run: |
-          # Constrói a imagem Docker
-          docker build -t $IMAGE_TAG -f docker/Dockerfile .
+          # Constrói o nome completo da imagem
+          IMAGE_NAME=${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
+          
+          echo "Building and pushing image: $IMAGE_NAME"
+          
+          # Constrói a imagem Docker com o nome completo
+          docker build -t $IMAGE_NAME -f docker/Dockerfile .
           
           # Envia a imagem para o ECR
-          docker push $IMAGE_TAG
+          docker push $IMAGE_NAME
