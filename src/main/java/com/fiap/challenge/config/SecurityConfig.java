@@ -28,19 +28,23 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
-                                "/api/actuator/health",
                                 "/actuator/health",
+                                "/api/actuator/health",
                                 "/api/health",
                                 "/health",
-                                "/api/cliente", "/api/cliente/**",
-                                "/cliente", "/cliente/**",
-                                "/api/webhook/", "api/webhook/**",
-                                "/webhook/", "/webhook/**",
-                                "/api/swagger-ui.html", "/swagger-ui.html",
-                                "/api/swagger-ui/**", "/swaggerD-ui/**",
-                                "/api/v3/api-docs/**", "/v3/api-docs/**",
-                                "/api/swagger-resources/**", "/swagger-resources/**",
-                                "/api/webjars/**", "/webjars/**"
+                                "/api/cliente/**",
+                                "/cliente/**",
+                                "/api/webhook/**",
+                                "/webhook/**",
+                                "/swagger-ui.html",
+                                "/api/swagger-ui/**",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/api/v3/api-docs/**",
+                                "/swagger-resources/**",
+                                "/api/swagger-resources/**",
+                                "/webjars/**",
+                                "/api/webjars/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 ).oauth2ResourceServer(oauth2 ->
