@@ -1,0 +1,18 @@
+name: Quality Analysis
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+jobs:
+  quality:
+    name: Quality Analysis
+    uses: fiap-challenge-group-52/challenge-fiap-workflows/.github/workflows/quality-analysis.yaml@main
+    with:
+      java-version: "21"
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

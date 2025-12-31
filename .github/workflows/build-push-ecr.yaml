@@ -1,0 +1,26 @@
+name: CI/CD - Build, Push Docker Image to ECR, and Deploy to EKS
+
+on:
+  workflow_run:
+    workflows: ["Quality Analysis"]
+    branches:
+      - master
+      - main
+    types:
+      - completed
+
+jobs:
+  build-push-deploy:
+    uses: fiap-challenge-group-52/challenge-fiap-workflows/.github/workflows/build-push-ecr.yaml@main
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.event == 'push'
+      )
+    with:
+      ref: ${{ github.event.workflow_run.head_branch }}
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
