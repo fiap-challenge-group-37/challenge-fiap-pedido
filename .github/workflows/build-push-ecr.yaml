@@ -3,15 +3,10 @@ name: CI/CD - Build, Push Docker Image to ECR, and Deploy to EKS
 on:
   workflow_run:
     workflows: ["Quality Analysis"]
+    branches:
+      - master
     types:
       - completed
-
-  workflow_dispatch:
-    inputs:
-      ref:
-        description: "Branch, tag ou SHA para publicar"
-        required: false
-        default: "master"
 
 jobs:
   build-push-deploy:
@@ -24,7 +19,7 @@ jobs:
         github.event.workflow_run.head_branch == 'master'
       )
     with:
-      ref: ${{ inputs.ref }}
+      ref: ${{ github.event.workflow_run.head_branch }}
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
