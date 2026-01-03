@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: lanchonete_mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: lanchonete
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: lanchonete_app
+    restart: always
+    depends_on:
+      - mysql
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DEVTOOLS_RESTART_ENABLED: "false"
+      MP_URL: "https://api.mercadopago.com/"
+      MP_ACCESS_TOKEN: "APP_USR-5776470819795291-052622-9d0e16330f82db26018b57af9f373d82-2461182756"
+      MP_USER_ID: "2461182756"
+      MP_EXTERNAL_POS_ID: "113730756"
+      MP_WEBHOOK: "http://54.165.29.101:8080/api/webhook/payment"
+
+volumes:
+  mysql_data:
