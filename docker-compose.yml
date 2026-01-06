@@ -32,6 +32,11 @@ services:
       MP_USER_ID: "2461182756"
       MP_EXTERNAL_POS_ID: "113730756"
       MP_WEBHOOK: "http://54.165.29.101:8080/api/webhook/payment"
+      DATABASE_HOST: "lanchonete_mysql"
+      DATABASE_PORT: "3306"
+      DATABASE_NAME: "lanchonete"
+      DATABASE_USER: "admin"
+      DATABASE_PASSWORD: "admin"
 
 volumes:
   mysql_data:

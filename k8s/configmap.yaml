@@ -11,3 +11,4 @@ data:
   MP_EXTERNAL_POS_ID: "113730756"
   MP_WEBHOOK: "http://54.165.29.101:30080/api/webhook/payment"
   JWT_ISSUER: "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_lKTrk2Wk0"
+  JWT_SECRET: "CHAVE_EXEMPLO_JWT"
