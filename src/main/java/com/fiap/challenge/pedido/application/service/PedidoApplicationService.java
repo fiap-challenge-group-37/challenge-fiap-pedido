@@ -1,23 +1,19 @@
-package com.fiap.challenge.pedido.application.service;
+package com.fiap.challenge.pedido. application. service;
 
-import com.fiap.challenge.pagamento.application.ports.out.MercadoPagoGateway;
 import com.fiap.challenge.pedido.application.exception.PedidoNaoEncontradoException;
 import com.fiap.challenge.pedido.application.exception.ValidacaoPedidoException;
-import com.fiap.challenge.pedido.application.port.in.*;
+import com.fiap.challenge.pedido.application. port.in.*;
 import com.fiap.challenge.pedido.domain.entities.ItemPedido;
-import com.fiap.challenge.pedido.domain.entities.Pedido;
+import com. fiap.challenge.pedido. domain.entities.Pedido;
 import com.fiap.challenge.pedido.domain.entities.StatusPedido;
 import com.fiap.challenge.pedido.domain.port.PedidoRepository;
-import com.fiap.challenge.produto.domain.entities.Produto;
-import com.fiap.challenge.produto.application.port.in.BuscarProdutoPorIdUseCase;
-
 import com.fiap.challenge.pedido.adapters.in.http.dto.PedidoDTO;
-import com.fiap.challenge.pedido.adapters.in.http.dto.ItemPedidoDTO;
+import com.fiap.challenge. pedido.adapters.in. http.dto.ItemPedidoDTO;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation. Transactional;
 
-import java.util.ArrayList;
+import java. util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,13 +21,9 @@ import java.util.Optional;
 public class PedidoApplicationService implements CriarPedidoUseCase, ListarPedidosUseCase, BuscarPedidoPorIdUseCase, AtualizarStatusPedidoUseCase {
 
     private final PedidoRepository pedidoRepository;
-    private final BuscarProdutoPorIdUseCase buscarProdutoPorIdUseCase;
-    private final MercadoPagoGateway mercadoPagoGateway;
 
-    public PedidoApplicationService(PedidoRepository pedidoRepository, BuscarProdutoPorIdUseCase buscarProdutoPorIdUseCase, MercadoPagoGateway mercadoPagoGateway) {
+    public PedidoApplicationService(PedidoRepository pedidoRepository) {
         this.pedidoRepository = pedidoRepository;
-        this.buscarProdutoPorIdUseCase = buscarProdutoPorIdUseCase;
-        this.mercadoPagoGateway = mercadoPagoGateway;
     }
 
     @Transactional
@@ -42,27 +34,41 @@ public class PedidoApplicationService implements CriarPedidoUseCase, ListarPedid
             throw new ValidacaoPedidoException("O pedido deve conter pelo menos um item.");
         }
 
+        // Como agora não temos acesso direto ao catálogo de produtos,
+        // assumimos que os dados vêm completos do DTO
         for (ItemPedidoDTO itemDTO : pedidoDTO.getItens()) {
-            Produto produto = buscarProdutoPorIdUseCase.buscarPorId(itemDTO.getProdutoId());
+            if (itemDTO.getProdutoId() == null) {
+                throw new ValidacaoPedidoException("Produto ID não pode ser nulo");
+            }
+            if (itemDTO.getQuantidade() == null || itemDTO.getQuantidade() <= 0) {
+                throw new ValidacaoPedidoException("Quantidade deve ser maior que zero");
+            }
+            if (itemDTO.getPreco() == null || itemDTO.getPreco().doubleValue() <= 0) {
+                throw new ValidacaoPedidoException("Preço deve ser maior que zero");
+            }
 
             itensDominio.add(new ItemPedido(
-                    produto.getId(),
-                    produto.getNome(),
+                    itemDTO.getProdutoId(),
+                    itemDTO.getNomeProduto(), // Nome deve vir do DTO
                     itemDTO.getQuantidade(),
-                    produto.getPreco() // Usar o preço do catálogo
+                    itemDTO.getPreco() // Preço deve vir do DTO
             ));
         }
 
-        Pedido pedido = pedidoRepository.save(new Pedido(pedidoDTO.getClienteId(), itensDominio));
-        pedido.setQrCode(mercadoPagoGateway.criarPagamento(pedido).getQrData());
-        pedidoRepository.saveQRCode(pedido);
+        Pedido pedido = pedidoRepository.save(new Pedido(pedidoDTO. getClienteId(), itensDominio));
+
+        // TODO: Integrar com serviço de pagamento via API REST ou mensageria
+        // String qrCode = chamarServicoPagamento(pedido);
+        // pedido.setQrCode(qrCode);
+        // pedidoRepository.saveQRCode(pedido);
+
         return pedido;
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<Pedido> executar() {
-        return pedidoRepository.findAll(); // Idealmente ordenados pela lógica da fila
+        return pedidoRepository.findAll();
     }
 
     @Transactional(readOnly = true)
@@ -71,7 +77,7 @@ public class PedidoApplicationService implements CriarPedidoUseCase, ListarPedid
         if (statusOpt.isPresent() && !statusOpt.get().trim().isEmpty()) {
             try {
                 StatusPedido status = StatusPedido.fromString(statusOpt.get());
-                return pedidoRepository.findByStatus(status);
+                return pedidoRepository. findByStatus(status);
             } catch (IllegalArgumentException e) {
                 throw new ValidacaoPedidoException("Status inválido fornecido: " + statusOpt.get() + ". " + e.getMessage());
             }
@@ -89,14 +95,14 @@ public class PedidoApplicationService implements CriarPedidoUseCase, ListarPedid
     @Override
     public Pedido buscarPorId(Long id) {
         return pedidoRepository.findById(id)
-                .orElseThrow(() -> new PedidoNaoEncontradoException("Pedido com ID " + id + " não encontrado."));
+                .orElseThrow(() -> new PedidoNaoEncontradoException("Pedido com ID " + id + " não encontrado. "));
     }
 
     @Transactional
     @Override
     public Pedido executar(Long pedidoId, String novoStatusStr) {
         Pedido pedido = pedidoRepository.findById(pedidoId)
-                .orElseThrow(() -> new PedidoNaoEncontradoException("Pedido com ID " + pedidoId + " não encontrado para atualização de status."));
+                .orElseThrow(() -> new PedidoNaoEncontradoException("Pedido com ID " + pedidoId + " não encontrado para atualização de status. "));
 
         StatusPedido novoStatus;
         try {

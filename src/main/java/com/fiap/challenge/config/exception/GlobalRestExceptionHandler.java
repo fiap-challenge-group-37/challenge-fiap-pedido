@@ -1,17 +1,13 @@
-package com.fiap.challenge.config.exception;
+package com.fiap.challenge.config. exception;
 
-import com.fiap.challenge.produto.application.exception.ApplicationServiceException;
-import com.fiap.challenge.produto.application.exception.ProdutoNaoEncontradoException; // New import
 import com.fiap.challenge.config.exception.dto.ErrorResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework. web.bind.annotation.ExceptionHandler;
+import org.springframework. web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import java.time.LocalDateTime;
@@ -21,7 +17,7 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalRestExceptionHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(GlobalRestExceptionHandler.class);
+    private static final Logger logger = LoggerFactory. getLogger(GlobalRestExceptionHandler.class);
 
     private static final String ERRO_INESPERADO_MSG = "Ocorreu um erro interno inesperado. Tente novamente mais tarde.";
 
@@ -31,14 +27,14 @@ public class GlobalRestExceptionHandler {
         String errors = ex.getBindingResult().getFieldErrors().stream()
                 .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
                 .collect(Collectors.joining(", "));
-        String message = "Erro de validação. " + errors;
+        String message = "Erro de validação.  " + errors;
 
         if (logger.isWarnEnabled()) {
-            logger.warn("Erro de validação: {}, Path: {}", errors, request.getDescription(false));
+            logger. warn("Erro de validação:  {}, Path: {}", errors, request.getDescription(false));
         }
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 LocalDateTime.now(),
-                HttpStatus.UNPROCESSABLE_ENTITY.value(),
+                HttpStatus. UNPROCESSABLE_ENTITY.value(),
                 "Validation Error",
                 message,
                 request.getDescription(false).replace("uri=", "")
@@ -50,7 +46,7 @@ public class GlobalRestExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponseDTO> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
         if (logger.isWarnEnabled()) {
-            logger.warn("Argumento ilegal/inválido: {}, Path: {}", ex.getMessage(), request.getDescription(false));
+            logger. warn("Argumento ilegal/inválido: {}, Path: {}", ex.getMessage(), request.getDescription(false));
         }
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 LocalDateTime.now(),
@@ -60,44 +56,12 @@ public class GlobalRestExceptionHandler {
                 request.getDescription(false).replace("uri=", "")
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(ApplicationServiceException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ErrorResponseDTO> handleApplicationServiceException(ApplicationServiceException ex, WebRequest request) {
-        if (logger.isErrorEnabled()) {
-            logger.error("Erro na camada de aplicação: {}, Path: {}", ex.getMessage(), request.getDescription(false), ex);
-        }
-        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
-                LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                ex.getMessage(),
-                request.getDescription(false).replace("uri=", "")
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(ProdutoNaoEncontradoException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<ErrorResponseDTO> handleProdutoNaoEncontradoException(ProdutoNaoEncontradoException ex, WebRequest request) {
-        if (logger.isWarnEnabled()) {
-            logger.warn("Recurso não encontrado: {}, Path: {}", ex.getMessage(), request.getDescription(false));
-        }
-        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
-                LocalDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
-                HttpStatus.NOT_FOUND.getReasonPhrase(),
-                ex.getMessage(),
-                request.getDescription(false).replace("uri=", "")
-        );
-        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<ErrorResponseDTO> handleGenericException(Exception ex, WebRequest request) {
-        if (logger.isErrorEnabled()) {
+        if (logger. isErrorEnabled()) {
             logger.error("Erro inesperado na aplicação: Path: {}", request.getDescription(false), ex);
         }
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
@@ -105,19 +69,8 @@ public class GlobalRestExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
                 ERRO_INESPERADO_MSG,
-                request.getDescription(false).replace("uri=", "")
+                request. getDescription(false).replace("uri=", "")
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler({AccessDeniedException.class, AuthorizationDeniedException.class})
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ResponseEntity<?> handleAccessDeniedException(Exception ex) {
-        return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(Map.of(
-                        "error", "Acesso negado",
-                        "message", "Você não tem permissão para acessar este recurso."
-                ));
     }
 }
