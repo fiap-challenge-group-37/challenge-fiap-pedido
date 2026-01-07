@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  DATABASE_HOST: fiap-g52-tc3-db-mysql.cj42ggik4jga.us-east-1.rds.amazonaws.com
+  DATABASE_PORT: "3306"
+  DATABASE_NAME: lanchonete
+  MP_URL: "https://api.mercadopago.com/"
+  MP_USER_ID: "2461182756"
+  MP_EXTERNAL_POS_ID: "113730756"
+  MP_WEBHOOK: "http://54.165.29.101:30080/api/webhook/payment"
+  JWT_ISSUER: "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_lKTrk2Wk0"
+  JWT_SECRET: "CHAVE_EXEMPLO_JWT"
