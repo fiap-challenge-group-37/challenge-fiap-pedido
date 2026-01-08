@@ -50,7 +50,12 @@ public class PedidoRepositoryDatabase implements PedidoRepository {
     @Override
     @Transactional(readOnly = true)
     public List<Pedido> findAll() {
-        return jpaRepository.findPedidosNaoFinalizadosOrdenadosParaCozinha().stream()
+        return jpaRepository.findPedidosNaoFinalizadosOrdenadosParaCozinha(
+                        StatusPedido.FINALIZADO,
+                        StatusPedido. PRONTO,
+                        StatusPedido.EM_PREPARACAO,
+                        StatusPedido. RECEBIDO
+                ).stream()
                 .map(PedidoEntity::toDomain)
                 .toList();
     }
