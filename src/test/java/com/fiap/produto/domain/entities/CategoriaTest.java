@@ -36,19 +36,24 @@ class CategoriaTest {
     @Test
     void deveLancarExcecaoQuandoCategoriaInvalida() {
         IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
+                IllegalArgumentException. class,
                 () -> Categoria.fromString("CATEGORIA_INVALIDA")
         );
 
-        assertNotNull(exception. getMessage());
+        assertNotNull(exception.getMessage());
+        assertTrue(exception.getMessage().contains("Categoria inválida"));
+        assertTrue(exception.getMessage().contains("CATEGORIA_INVALIDA"));
     }
 
     @Test
     void deveLancarExcecaoQuandoStringVazia() {
-        assertThrows(
+        IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> Categoria.fromString("")
         );
+
+        assertNotNull(exception.getMessage());
+        assertTrue(exception.getMessage().contains("Categoria inválida"));
     }
 
     @Test

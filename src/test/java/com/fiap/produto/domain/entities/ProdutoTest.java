@@ -84,26 +84,32 @@ class ProdutoTest {
 
     @Test
     void deveValidarCategoriaNaoNula() {
-        assertThrows(
+        IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> new Produto("Nome", null, BigDecimal.valueOf(10.00), "Descrição")
         );
+
+        assertTrue(exception.getMessage().contains("Categoria não pode ser nula"));
     }
 
     @Test
     void deveValidarPrecoNaoNulo() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new Produto("Nome", Categoria.LANCHE, null, "Descrição")
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException. class,
+                () -> new Produto("Nome", Categoria. LANCHE, null, "Descrição")
         );
+
+        assertTrue(exception.getMessage().contains("Preço não pode ser nulo"));
     }
 
     @Test
     void deveValidarPrecoNaoNegativo() {
-        assertThrows(
+        IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> new Produto("Nome", Categoria.LANCHE, BigDecimal.valueOf(-10.00), "Descrição")
         );
+
+        assertTrue(exception. getMessage().contains("Preço não pode ser negativo"));
     }
 
     @Test
