@@ -13,7 +13,7 @@ on:
 
 jobs:
   build-push-deploy:
-    uses: fiap-challenge-group-52/challenge-fiap-workflows/.github/workflows/build-push-ecr.yaml@main
+    uses: fiap-challenge-group-37/challenge-fiap-workflows/.github/workflows/build-push-ecr.yaml@main
     if: |
       github.event_name == 'workflow_dispatch' ||
       (

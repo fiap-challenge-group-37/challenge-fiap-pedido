@@ -3,10 +3,10 @@ version: '3.8'
 services:
   mysql:
     image: mysql:8.0
-    container_name: lanchonete_mysql
+    container_name: pedido_mysql
     restart: always
     environment:
-      MYSQL_DATABASE: lanchonete
+      MYSQL_DATABASE: pedido
       MYSQL_ROOT_PASSWORD: root
       MYSQL_USER: admin
       MYSQL_PASSWORD: admin
@@ -19,7 +19,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    container_name: lanchonete_app
+    container_name: pedido_app
     restart: always
     depends_on:
       - mysql

@@ -15,7 +15,7 @@ public interface PedidoJpaRepository extends JpaRepository<PedidoEntity, Long> {
 
     @Query("SELECT p FROM PedidoEntity p WHERE p.status <> :statusFinalizado " +
             "ORDER BY CASE p.status " +
-            "WHEN : statusPronto THEN 1 " +
+            "WHEN :statusPronto THEN 1 " +
             "WHEN :statusEmPreparacao THEN 2 " +
             "WHEN :statusRecebido THEN 3 " +
             "ELSE 4 END, p.dataCriacao ASC")
