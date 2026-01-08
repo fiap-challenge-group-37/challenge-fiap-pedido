@@ -1,18 +1,18 @@
 package com.fiap.pedido.domain.dto;
 
+import com.fiap.pedido.worker.dto.PedidoPagoEvento;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
-import com.fiap.pedido.domain.dto.PedidoPagoEvento;
 
-import static org.junit. jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 class PedidoPagoEventoTest {
 
     @Test
     void deveCriarEventoComSucesso() {
-        List<PedidoPagoEvento. ItemPedido> itens = Arrays.asList(
+        List<PedidoPagoEvento.ItemPedido> itens = Arrays.asList(
                 new PedidoPagoEvento.ItemPedido("Hamburguer", 2),
                 new PedidoPagoEvento.ItemPedido("Refrigerante", 1)
         );
