@@ -13,7 +13,7 @@ on:
 
 jobs:
   build-push-deploy:
-    uses: fiap-challenge-group-52/challenge-fiap-workflows/.github/workflows/build-push-ecr.yaml@main
+    uses: fiap-challenge-group-37/challenge-fiap-workflows/.github/workflows/build-push-ecr.yaml@main
     if: |
       github.event_name == 'workflow_dispatch' ||
       (
@@ -22,6 +22,7 @@ jobs:
       )
     with:
       ref: ${{ github.event.workflow_run.head_branch }}
+      ecr-repository-name: ${{ vars.ECR_REPOSITORY_NAME }}
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
