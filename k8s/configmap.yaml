@@ -5,7 +5,7 @@ metadata:
 data:
   DATABASE_HOST: fiap-g52-tc3-db-pedidos.cmjnuhfdzngi.us-east-1.rds.amazonaws.com
   DATABASE_PORT: "3306"
-  DATABASE_NAME: pagamento
+  DATABASE_NAME: fiap-g52-tc3-db-pedidos
   MP_URL: "https://api.mercadopago.com/"
   MP_USER_ID: "2461182756"
   MP_EXTERNAL_POS_ID: "113730756"
