@@ -15,7 +15,6 @@ import java.util.ArrayList;
 public class Pedido {
     private Long id;
     private Long externalId;
-    private String externalReference;
     private Long clienteId;
     private List<ItemPedido> itens;
     private BigDecimal valorTotal;
@@ -43,7 +42,6 @@ public class Pedido {
         this.status = status;
         this.dataCriacao = dataCriacao;
         this.dataAtualizacao = dataAtualizacao;
-        this.externalReference = externalID;
         this.qrCode = qrCode;
     }
 

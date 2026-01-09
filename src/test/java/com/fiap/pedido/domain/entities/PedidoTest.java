@@ -58,7 +58,6 @@ class PedidoTest {
         assertEquals(2L, pedido.getClienteId());
         assertEquals(BigDecimal.valueOf(100.00), pedido.getValorTotal());
         assertEquals(StatusPedido.RECEBIDO, pedido.getStatus());
-        assertEquals("PED-001", pedido.getExternalReference());
         assertEquals("qr-code-123", pedido.getQrCode());
     }
 
