@@ -55,7 +55,7 @@ public class PedidoEntity {
         List<ItemPedido> domainItens = this.itens.stream()
                 .map(ItemPedidoEntity::toDomain)
                 .toList();
-        return new Pedido(this.id, this.clienteId, domainItens, this.valorTotal, this.status, this.dataCriacao, this.dataAtualizacao, this.id.toString(), this.qrCode);
+        return new Pedido(this.id, this.clienteId, domainItens, this.valorTotal, this.status, this.dataCriacao, this.dataAtualizacao, this.externalID, this.qrCode);
     }
 
     public static PedidoEntity fromDomain(Pedido pedido) {
@@ -64,7 +64,7 @@ public class PedidoEntity {
         entity.setClienteId(pedido.getClienteId());
         entity.setValorTotal(pedido.getValorTotal());
         entity.setStatus(pedido.getStatus());
-        entity.setExternalID(pedido.getId().toString());
+        entity.setExternalID(pedido.getExternalReference());
         entity.setQrCode(pedido.getQrCode());
         entity.setDataCriacao(
                 Optional.ofNullable(pedido.getDataCriacao()).orElse(LocalDateTime.now())
