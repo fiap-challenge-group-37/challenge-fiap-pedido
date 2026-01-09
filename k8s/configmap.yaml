@@ -1,14 +1,28 @@
 apiVersion: v1
-kind: ConfigMap
+kind:  ConfigMap
 metadata:
   name: app-config
 data:
-  DATABASE_HOST: fiap-g52-tc3-db-pedidos.cmjnuhfdzngi.us-east-1.rds.amazonaws.com
+  DATABASE_HOST: "fiap-g52-tc3-db-pedidos.cmjnuhfdzngi.us-east-1.rds.amazonaws.com"
   DATABASE_PORT: "3306"
-  DATABASE_NAME: pagamento
-  MP_URL: "https://api.mercadopago.com/"
-  MP_USER_ID: "2461182756"
-  MP_EXTERNAL_POS_ID: "113730756"
-  MP_WEBHOOK: "http://54.165.29.101:30080/api/webhook/payment"
+  DATABASE_NAME: "fiap-g52-tc3-db-pedidos"
+  DATABASE_USER: "admin"
+
+  # JWT
   JWT_ISSUER: "https://cognito-idp.us-east-1.amazonaws.com/us-east-1_lKTrk2Wk0"
   JWT_SECRET: "CHAVE_EXEMPLO_JWT"
+
+  # SQS (ADICIONE ESTAS LINHAS)
+  SQS_ENABLED: "true"
+  QUEUE_PEDIDO_PAGO: "https://sqs.us-east-1.amazonaws. com/302039906417/pedido-pago-queue"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secrets
+type: Opaque
+stringData:
+  DATABASE_PASSWORD:  "sua-senha-db"
+  AWS_ACCESS_KEY_ID: "sua-access-key"
+  AWS_SECRET_ACCESS_KEY: "sua-secret-key"
+  AWS_SESSION_TOKEN: "seu-session-token"
