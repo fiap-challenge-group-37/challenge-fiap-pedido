@@ -45,7 +45,8 @@ public class SecurityConfig {
                                 "/api/swagger-resources/**",
                                 "/webjars/**",
                                 "/api/webjars/**",
-                                "/api/*/status"
+                                "/api/*/status",
+                                "/api/**/status"
                         ).permitAll()
                         .anyRequest().authenticated()
                 ).oauth2ResourceServer(oauth2 ->
