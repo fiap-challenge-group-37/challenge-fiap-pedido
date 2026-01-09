@@ -14,7 +14,7 @@ import java.util.ArrayList;
 @NoArgsConstructor
 public class Pedido {
     private Long id;
-    private Long externalID;
+    private String externalID;
     private Long clienteId;
     private List<ItemPedido> itens;
     private BigDecimal valorTotal;

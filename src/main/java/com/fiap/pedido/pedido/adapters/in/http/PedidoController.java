@@ -75,7 +75,7 @@ public class PedidoController {
     public ResponseEntity<PedidoResponseDTO> criarPedido(@Valid @RequestBody PedidoDTO pedidoDTO) {
         logger.info("Recebida requisição para criar pedido.");
         Pedido novoPedido = criarPedidoUseCase.executar(pedidoDTO);
-        novoPedido.setExternalID(novoPedido.getId());
+        novoPedido.setExternalID(novoPedido.getId().toString());
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Jwt jwt = (Jwt) auth.getPrincipal();
         String tokenValue = jwt.getTokenValue();
