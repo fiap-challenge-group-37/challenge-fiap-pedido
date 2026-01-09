@@ -1,9 +1,11 @@
 package com.fiap.pedido;
 
+import com.fiap.pedido.config.TestSecurityConfig;
 import org.junit.jupiter.api. Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Import;
 import org. springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions. assertNotNull;
@@ -15,6 +17,7 @@ import static org.junit.jupiter.api.Assertions. assertNotNull;
         "spring.jpa.hibernate.ddl-auto=create-drop"
 })
 @ActiveProfiles("test")
+@Import(TestSecurityConfig.class)
 class PedidoApplicationTests {
 
     @Autowired
