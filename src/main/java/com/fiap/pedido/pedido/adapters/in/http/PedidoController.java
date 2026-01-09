@@ -1,5 +1,7 @@
 package com.fiap.pedido.pedido.adapters.in.http;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fiap.pedido.pedido.adapters.in.http.dto.PedidoDTO;
 import com.fiap.pedido.pedido.adapters.in.http.dto.PedidoResponseDTO;
 import com.fiap.pedido.pedido.adapters.in.http.dto.StatusUpdateRequestDTO;
@@ -22,6 +24,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -35,6 +40,7 @@ public class PedidoController {
 
     private static final Logger logger = LoggerFactory.getLogger(PedidoController.class);
     private final WebClient.Builder webClientBuilder;
+    ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${pagamento.url}")
     private String pagamentoUrl;
@@ -69,16 +75,22 @@ public class PedidoController {
     public ResponseEntity<PedidoResponseDTO> criarPedido(@Valid @RequestBody PedidoDTO pedidoDTO) {
         logger.info("Recebida requisição para criar pedido.");
         Pedido novoPedido = criarPedidoUseCase.executar(pedidoDTO);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) auth.getPrincipal();
+        String tokenValue = jwt.getTokenValue();
         try {
             WebClient webClient = webClientBuilder.build();
             String respostaPagamento = webClient
                     .post()
                     .uri(pagamentoUrl)
+                    .header("Authorization", "Bearer " + tokenValue)
                     .bodyValue(novoPedido)
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();
 
+            JsonNode jsonNode = objectMapper.readTree(respostaPagamento);
+            novoPedido.setQrCode(jsonNode.get("qr_data").asText());
             logger.info("Resposta do serviço de pagamento: {}", respostaPagamento);
         } catch (Exception ex) {
             logger.error("Erro ao chamar serviço de pagamento", ex);
