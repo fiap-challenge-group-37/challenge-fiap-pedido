@@ -11,6 +11,7 @@ import io.cucumber. java.pt.Quando;
 import io.cucumber.spring.CucumberContextConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
@@ -28,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
                 "events.queue.pedido-pago=fila-teste-mock"
         }
 )
+@Import(com.fiap.pedido.config.TestSecurityConfig.class)
 @ActiveProfiles("test")
 public class PedidoStepDefinitions {
 
