@@ -19,9 +19,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +34,10 @@ import java.util.Optional;
 public class PedidoController {
 
     private static final Logger logger = LoggerFactory.getLogger(PedidoController.class);
+    private final WebClient.Builder webClientBuilder;
+
+    @Value("${pagamento.url}")
+    private String pagamentoUrl;
 
     private final CriarPedidoUseCase criarPedidoUseCase;
     private final ListarPedidosUseCase listarPedidosUseCase;
@@ -41,11 +47,14 @@ public class PedidoController {
     public PedidoController(CriarPedidoUseCase criarPedidoUseCase,
                             ListarPedidosUseCase listarPedidosUseCase,
                             BuscarPedidoPorIdUseCase buscarPedidoPorIdUseCase,
-                            AtualizarStatusPedidoUseCase atualizarStatusPedidoUseCase) {
+                            AtualizarStatusPedidoUseCase atualizarStatusPedidoUseCase,
+                            WebClient.Builder webClientBuilder
+    ) {
         this.criarPedidoUseCase = criarPedidoUseCase;
         this.listarPedidosUseCase = listarPedidosUseCase;
         this.buscarPedidoPorIdUseCase = buscarPedidoPorIdUseCase;
         this.atualizarStatusPedidoUseCase = atualizarStatusPedidoUseCase;
+        this.webClientBuilder = webClientBuilder;
     }
 
     @Operation(summary = "Criar um novo pedido (Fake Checkout)(Público)")
@@ -60,6 +69,20 @@ public class PedidoController {
     public ResponseEntity<PedidoResponseDTO> criarPedido(@Valid @RequestBody PedidoDTO pedidoDTO) {
         logger.info("Recebida requisição para criar pedido.");
         Pedido novoPedido = criarPedidoUseCase.executar(pedidoDTO);
+        try {
+            WebClient webClient = webClientBuilder.build();
+            String respostaPagamento = webClient
+                    .post()
+                    .uri(pagamentoUrl)
+                    .bodyValue(novoPedido)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+
+            logger.info("Resposta do serviço de pagamento: {}", respostaPagamento);
+        } catch (Exception ex) {
+            logger.error("Erro ao chamar serviço de pagamento", ex);
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(PedidoResponseDTO.fromDomain(novoPedido));
     }
 
