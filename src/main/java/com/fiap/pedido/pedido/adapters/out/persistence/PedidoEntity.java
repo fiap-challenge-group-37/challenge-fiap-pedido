@@ -64,7 +64,6 @@ public class PedidoEntity {
         entity.setClienteId(pedido.getClienteId());
         entity.setValorTotal(pedido.getValorTotal());
         entity.setStatus(pedido.getStatus());
-        entity.setExternalID(pedido.getExternalReference());
         entity.setQrCode(pedido.getQrCode());
         entity.setDataCriacao(
                 Optional.ofNullable(pedido.getDataCriacao()).orElse(LocalDateTime.now())

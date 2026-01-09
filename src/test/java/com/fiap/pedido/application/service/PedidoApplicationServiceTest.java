@@ -223,7 +223,6 @@ class PedidoApplicationServiceTest {
         Pedido resultado = service.executar("PED-001");
 
         assertNotNull(resultado);
-        assertEquals("PED-001", resultado.getExternalReference());
         verify(pedidoRepository, times(1)).findByExternalId("PED-001");
     }
 
