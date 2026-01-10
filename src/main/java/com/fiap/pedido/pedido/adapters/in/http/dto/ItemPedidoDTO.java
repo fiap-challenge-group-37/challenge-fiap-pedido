@@ -1,4 +1,4 @@
-package com.fiap.pedido. pedido.adapters.in. http.dto;
+package com.fiap.pedido.pedido.adapters.in.http.dto;
 
 import java.math.BigDecimal;
 

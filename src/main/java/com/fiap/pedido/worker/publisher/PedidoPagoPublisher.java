@@ -19,7 +19,7 @@ public class PedidoPagoPublisher {
 
     public void publicarPedidoPago(PedidoPagoEvento evento) {
         try {
-            log.info("Publicando evento de pedido pago: {}", evento. idPedido());
+            log.info("Publicando evento de pedido pago: {}", evento.idPedido());
 
             sqsTemplate.send(to -> to
                     .queue(queueName)

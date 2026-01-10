@@ -1,4 +1,4 @@
-package com.fiap.pedido.config. exception;
+package com.fiap.pedido.config.exception;
 
 import com.fiap.pedido.config.exception.dto.ErrorResponseDTO;
 import org.slf4j.Logger;
@@ -6,8 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework. web.bind.annotation.ExceptionHandler;
-import org.springframework. web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import java.time.LocalDateTime;
@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalRestExceptionHandler {
 
-    private static final Logger logger = LoggerFactory. getLogger(GlobalRestExceptionHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(GlobalRestExceptionHandler.class);
 
-    private static final String ERRO_INESPERADO_MSG = "Ocorreu um erro interno inesperado. Tente novamente mais tarde.";
+    private static final String ERRO_INESPERADO_MSG = "Ocorreu um erro interno inesperado.Tente novamente mais tarde.";
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
@@ -26,14 +26,14 @@ public class GlobalRestExceptionHandler {
         String errors = ex.getBindingResult().getFieldErrors().stream()
                 .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
                 .collect(Collectors.joining(", "));
-        String message = "Erro de validação.  " + errors;
+        String message = "Erro de validação." + errors;
 
         if (logger.isWarnEnabled()) {
-            logger. warn("Erro de validação:  {}, Path: {}", errors, request.getDescription(false));
+            logger.warn("Erro de validação:  {}, Path: {}", errors, request.getDescription(false));
         }
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 LocalDateTime.now(),
-                HttpStatus. UNPROCESSABLE_ENTITY.value(),
+                HttpStatus.UNPROCESSABLE_ENTITY.value(),
                 "Validation Error",
                 message,
                 request.getDescription(false).replace("uri=", "")
@@ -45,7 +45,7 @@ public class GlobalRestExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponseDTO> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
         if (logger.isWarnEnabled()) {
-            logger. warn("Argumento ilegal/inválido: {}, Path: {}", ex.getMessage(), request.getDescription(false));
+            logger.warn("Argumento ilegal/inválido: {}, Path: {}", ex.getMessage(), request.getDescription(false));
         }
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 LocalDateTime.now(),
@@ -60,7 +60,7 @@ public class GlobalRestExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<ErrorResponseDTO> handleGenericException(Exception ex, WebRequest request) {
-        if (logger. isErrorEnabled()) {
+        if (logger.isErrorEnabled()) {
             logger.error("Erro inesperado na aplicação: Path: {}", request.getDescription(false), ex);
         }
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
@@ -68,7 +68,7 @@ public class GlobalRestExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
                 ERRO_INESPERADO_MSG,
-                request. getDescription(false).replace("uri=", "")
+                request.getDescription(false).replace("uri=", "")
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }

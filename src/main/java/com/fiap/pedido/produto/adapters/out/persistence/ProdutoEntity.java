@@ -1,6 +1,6 @@
 package com.fiap.pedido.produto.adapters.out.persistence;
 
-import com.fiap.pedido.produto. domain.entities.Categoria;
+import com.fiap.pedido.produto.domain.entities.Categoria;
 import com.fiap.pedido.produto.domain.entities. Produto;
 import jakarta.persistence.*;
 import lombok.Getter;
