@@ -2,6 +2,7 @@ package com.fiap.pedido.pedido.adapters.in.http;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fiap.pedido.domain.dto.PedidoPagoEvento;
 import com.fiap.pedido.pedido.adapters.in.http.dto.PedidoDTO;
 import com.fiap.pedido.pedido.adapters.in.http.dto.PedidoResponseDTO;
 import com.fiap.pedido.pedido.adapters.in.http.dto.StatusUpdateRequestDTO;
@@ -10,6 +11,8 @@ import com.fiap.pedido.pedido.application.port.in.BuscarPedidoPorIdUseCase;
 import com.fiap.pedido.pedido.application.port.in.CriarPedidoUseCase;
 import com.fiap.pedido.pedido.application.port.in.ListarPedidosUseCase;
 import com.fiap.pedido.pedido.domain.entities.Pedido;
+import com.fiap.pedido.pedido.domain.entities.StatusPedido;
+import com.fiap.pedido.worker.publisher.PedidoPagoPublisher;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -49,18 +52,21 @@ public class PedidoController {
     private final ListarPedidosUseCase listarPedidosUseCase;
     private final BuscarPedidoPorIdUseCase buscarPedidoPorIdUseCase;
     private final AtualizarStatusPedidoUseCase atualizarStatusPedidoUseCase;
+    private final PedidoPagoPublisher pedidoPagoPublisher;
 
     public PedidoController(CriarPedidoUseCase criarPedidoUseCase,
                             ListarPedidosUseCase listarPedidosUseCase,
                             BuscarPedidoPorIdUseCase buscarPedidoPorIdUseCase,
                             AtualizarStatusPedidoUseCase atualizarStatusPedidoUseCase,
-                            WebClient.Builder webClientBuilder
+                            WebClient.Builder webClientBuilder,
+                            PedidoPagoPublisher pedidoPagoPublisher
     ) {
         this.criarPedidoUseCase = criarPedidoUseCase;
         this.listarPedidosUseCase = listarPedidosUseCase;
         this.buscarPedidoPorIdUseCase = buscarPedidoPorIdUseCase;
         this.atualizarStatusPedidoUseCase = atualizarStatusPedidoUseCase;
         this.webClientBuilder = webClientBuilder;
+        this.pedidoPagoPublisher = pedidoPagoPublisher;
     }
 
     @Operation(summary = "Criar um novo pedido (Fake Checkout)(Público)")
@@ -138,12 +144,24 @@ public class PedidoController {
             @ApiResponse(responseCode = "422", description = "Erro de validação"),
             @ApiResponse(responseCode = "500", description = "Erro interno")
     })
+
+
     @PatchMapping("/{pedido_id}/status")
     public ResponseEntity<PedidoResponseDTO> atualizarStatusPedido(
             @PathVariable("pedido_id") Long pedidoId,
             @Valid @RequestBody StatusUpdateRequestDTO statusUpdateRequestDTO) {
         logger.info("Requisição para atualizar status do pedido {}: {}", pedidoId, statusUpdateRequestDTO.getNovoStatus());
         Pedido pedidoAtualizado = atualizarStatusPedidoUseCase.executar(pedidoId, statusUpdateRequestDTO.getNovoStatus());
+
+        if (StatusPedido.RECEBIDO.equals(pedidoAtualizado.getStatus())) {
+            var itens = pedidoAtualizado.getItens().stream()
+                    .map(item -> new PedidoPagoEvento.ItemPedido(item.getNomeProduto(), item.getQuantidade()))
+                    .toList();
+
+            PedidoPagoEvento evento = new PedidoPagoEvento(pedidoAtualizado.getId(), itens);
+            pedidoPagoPublisher.publicarPedidoPago(evento);
+        }
+
         return ResponseEntity.ok(PedidoResponseDTO.fromDomain(pedidoAtualizado));
     }
 }
