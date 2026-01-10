@@ -52,9 +52,9 @@ public class PedidoRepositoryDatabase implements PedidoRepository {
     public List<Pedido> findAll() {
         return jpaRepository.findPedidosNaoFinalizadosOrdenadosParaCozinha(
                         StatusPedido.FINALIZADO,
-                        StatusPedido. PRONTO,
+                        StatusPedido.PRONTO,
                         StatusPedido.EM_PREPARACAO,
-                        StatusPedido. RECEBIDO
+                        StatusPedido.RECEBIDO
                 ).stream()
                 .map(PedidoEntity::toDomain)
                 .toList();

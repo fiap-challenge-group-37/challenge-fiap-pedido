@@ -1,14 +1,14 @@
-package com.fiap.pedido.pedido. application. service;
+package com.fiap.pedido.pedido.application.service;
 
 import com.fiap.pedido.pedido.application.exception.PedidoNaoEncontradoException;
 import com.fiap.pedido.pedido.application.exception.ValidacaoPedidoException;
-import com.fiap.pedido.pedido.application. port.in.*;
+import com.fiap.pedido.pedido.application.port.in.*;
 import com.fiap.pedido.pedido.domain.entities.ItemPedido;
-import com. fiap.pedido.pedido. domain.entities.Pedido;
+import com.fiap.pedido.pedido.domain.entities.Pedido;
 import com.fiap.pedido.pedido.domain.entities.StatusPedido;
 import com.fiap.pedido.pedido.domain.port.PedidoRepository;
 import com.fiap.pedido.pedido.adapters.in.http.dto.PedidoDTO;
-import com.fiap.pedido. pedido.adapters.in. http.dto.ItemPedidoDTO;
+import com.fiap.pedido.pedido.adapters.in. http.dto.ItemPedidoDTO;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation. Transactional;

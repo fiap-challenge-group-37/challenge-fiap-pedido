@@ -26,7 +26,7 @@ class PedidoPagoEventoTest {
 
     @Test
     void deveCriarItemPedidoComSucesso() {
-        PedidoPagoEvento. ItemPedido item = new PedidoPagoEvento.ItemPedido("Hamburguer", 2);
+        PedidoPagoEvento.ItemPedido item = new PedidoPagoEvento.ItemPedido("Hamburguer", 2);
 
         assertEquals("Hamburguer", item.nome());
         assertEquals(2, item.quantidade());
@@ -50,7 +50,7 @@ class PedidoPagoEventoTest {
         List<PedidoPagoEvento.ItemPedido> itens1 = Arrays.asList(
                 new PedidoPagoEvento.ItemPedido("Hamburguer", 2)
         );
-        List<PedidoPagoEvento. ItemPedido> itens2 = Arrays.asList(
+        List<PedidoPagoEvento.ItemPedido> itens2 = Arrays.asList(
                 new PedidoPagoEvento.ItemPedido("Batata", 1)
         );
 
