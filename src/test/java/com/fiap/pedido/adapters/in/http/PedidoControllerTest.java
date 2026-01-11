@@ -2,6 +2,7 @@ package com.fiap.pedido.adapters.in.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fiap.pedido.config.TestSecurityConfig;
+import com.fiap.pedido.config.exception.GlobalRestExceptionHandler;
 import com.fiap.pedido.pedido.adapters.in.http.PedidoController;
 import com.fiap.pedido.pedido.adapters.in.http.dto.ItemPedidoDTO;
 import com.fiap.pedido.pedido.adapters.in.http.dto.PedidoDTO;
@@ -32,14 +33,13 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Optional;
+import java.util.*;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 @Import(TestSecurityConfig.class)
@@ -61,7 +61,7 @@ class PedidoControllerTest {
     private AtualizarStatusPedidoUseCase atualizarStatusPedidoUseCase;
 
     @Mock
-    private WebClient.Builder webClientBuilder; // MOCK para o WebClient
+    private WebClient.Builder webClientBuilder;
 
     @Mock
     private WebClient webClient;
@@ -73,15 +73,24 @@ class PedidoControllerTest {
     void setUp() {
         objectMapper = new ObjectMapper();
 
-        org.mockito.Mockito.lenient().when(webClientBuilder.build()).thenReturn(webClient);
+        WebClient.RequestBodyUriSpec uriSpecMock = Mockito.mock(WebClient.RequestBodyUriSpec.class, Mockito.RETURNS_SELF);
+        WebClient.ResponseSpec responseSpecMock = Mockito.mock(WebClient.ResponseSpec.class);
 
-        mockMvc = MockMvcBuilders.standaloneSetup(pedidoController).build();
+        lenient().when(webClientBuilder.build()).thenReturn(webClient);
+        lenient().when(webClient.post()).thenReturn(uriSpecMock);
+        lenient().when(uriSpecMock.retrieve()).thenReturn(responseSpecMock);
+        lenient().when(responseSpecMock.bodyToMono(eq(String.class)))
+                .thenReturn(Mono.just("{ \"in_store_order_id\":\"1\", \"qr_data\": \"qr-code-mock\" }"));
+
+        mockMvc = MockMvcBuilders.standaloneSetup(pedidoController)
+                .setControllerAdvice(new GlobalRestExceptionHandler())
+                .build();
     }
 
     private Pedido criarPedidoMock() {
         return new Pedido(
                 1L, 1L,
-                Arrays.asList(new ItemPedido(1L, "Hamburguer", 2, BigDecimal.valueOf(20.00))),
+                Collections.singletonList(new ItemPedido(1L, "Hamburguer", 2, BigDecimal.valueOf(20.00))),
                 BigDecimal.valueOf(40.00),
                 StatusPedido.RECEBIDO,
                 LocalDateTime.now(),
@@ -101,7 +110,7 @@ class PedidoControllerTest {
         item.setNomeProduto("Hamburguer");
         item.setQuantidade(2);
         item.setPreco(BigDecimal.valueOf(20.00));
-        pedidoDTO.setItens(Arrays.asList(item));
+        pedidoDTO.setItens(Collections.singletonList(item));
 
         when(criarPedidoUseCase.executar(any(PedidoDTO.class))).thenReturn(criarPedidoMock());
 
@@ -112,19 +121,41 @@ class PedidoControllerTest {
         when(authenticationMock.getPrincipal()).thenReturn(jwtMock);
         SecurityContextHolder.getContext().setAuthentication(authenticationMock);
 
-        // Mock cadeia do WebClient corretamente
-        WebClient.RequestBodyUriSpec uriSpecMock = Mockito.mock(WebClient.RequestBodyUriSpec.class);
-        WebClient.RequestBodySpec bodySpecMock = Mockito.mock(WebClient.RequestBodySpec.class);
-        WebClient.ResponseSpec responseSpecMock = Mockito.mock(WebClient.ResponseSpec.class);
+        mockMvc.perform(post("/pedidos/checkout")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(pedidoDTO)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.status").value("Recebido"));
+    }
 
-        String pagamentoJson = "{ \"in_store_order_id\":\"1\", \"qr_data\": \"qr-code-value\" }";
+    @Test
+    void deveCriarPedidoQuandoPagamentoFalhar() throws Exception {
+        PedidoDTO pedidoDTO = new PedidoDTO();
+        pedidoDTO.setClienteId(1L);
+        ItemPedidoDTO item = new ItemPedidoDTO();
+        item.setProdutoId(1L);
+        item.setNomeProduto("Hamburguer");
+        item.setQuantidade(2);
+        item.setPreco(BigDecimal.valueOf(20.00));
+        pedidoDTO.setItens(Collections.singletonList(item));
 
-        // Fluxo correto
+        when(criarPedidoUseCase.executar(any(PedidoDTO.class))).thenReturn(criarPedidoMock());
+
+        // Mock autenticação JWT
+        Jwt jwtMock = Mockito.mock(Jwt.class);
+        when(jwtMock.getTokenValue()).thenReturn("jwt-mock-token");
+        Authentication authenticationMock = Mockito.mock(Authentication.class);
+        when(authenticationMock.getPrincipal()).thenReturn(jwtMock);
+        SecurityContextHolder.getContext().setAuthentication(authenticationMock);
+
+        // Mock chain para lançar exceção ao tentar chamar o serviço de pagamento
+        WebClient.RequestBodyUriSpec uriSpecMock = Mockito.mock(WebClient.RequestBodyUriSpec.class, Mockito.RETURNS_DEEP_STUBS);
+        when(webClientBuilder.build()).thenReturn(webClient);
         when(webClient.post()).thenReturn(uriSpecMock);
-        when(uriSpecMock.uri(anyString())).thenReturn(bodySpecMock);
-        when(bodySpecMock.header(eq("Authorization"), anyString())).thenReturn(bodySpecMock);
-        when(responseSpecMock.bodyToMono(eq(String.class))).thenReturn(Mono.just(pagamentoJson));
-        when(responseSpecMock.bodyToMono(eq(String.class))).thenReturn(reactor.core.publisher.Mono.just(pagamentoJson));
+        when(uriSpecMock.uri(anyString())).thenReturn(uriSpecMock);
+        when(uriSpecMock.header(anyString(), anyString())).thenReturn(uriSpecMock);
+        when(uriSpecMock.bodyValue(any())).thenThrow(new RuntimeException("Pagamento offline"));
 
         mockMvc.perform(post("/pedidos/checkout")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -137,7 +168,7 @@ class PedidoControllerTest {
     @Test
     void deveListarTodosPedidos() throws Exception {
         when(listarPedidosUseCase.executar(any(Optional.class)))
-                .thenReturn(Arrays.asList(criarPedidoMock()));
+                .thenReturn(Collections.singletonList(criarPedidoMock()));
 
         mockMvc.perform(get("/pedidos"))
                 .andExpect(status().isOk())
@@ -147,7 +178,7 @@ class PedidoControllerTest {
     @Test
     void deveListarPedidosPorStatus() throws Exception {
         when(listarPedidosUseCase.executar(eq(Optional.of("RECEBIDO"))))
-                .thenReturn(Arrays.asList(criarPedidoMock()));
+                .thenReturn(Collections.singletonList(criarPedidoMock()));
 
         mockMvc.perform(get("/pedidos").param("status", "RECEBIDO"))
                 .andExpect(status().isOk())
@@ -171,7 +202,7 @@ class PedidoControllerTest {
 
         Pedido pedidoAtualizado = new Pedido(
                 1L, 1L,
-                Arrays.asList(new ItemPedido(1L, "Hamburguer", 2, BigDecimal.valueOf(20.00))),
+                Collections.singletonList(new ItemPedido(1L, "Hamburguer", 2, BigDecimal.valueOf(20.00))),
                 BigDecimal.valueOf(40.00),
                 StatusPedido.EM_PREPARACAO,
                 LocalDateTime.now(),
@@ -198,6 +229,20 @@ class PedidoControllerTest {
         mockMvc.perform(post("/pedidos/checkout")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(pedidoDTO)))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    void deveRetornarErroParaStatusInvalido() throws Exception {
+        StatusUpdateRequestDTO statusDTO = new StatusUpdateRequestDTO();
+        statusDTO.setNovoStatus("VOANDO");
+
+        when(atualizarStatusPedidoUseCase.executar(eq(1L), eq("VOANDO")))
+                .thenThrow(new IllegalArgumentException("Status inválido"));
+
+        mockMvc.perform(patch("/pedidos/1/status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(statusDTO)))
                 .andExpect(status().isBadRequest());
     }
 }
