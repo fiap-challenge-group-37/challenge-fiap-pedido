@@ -25,10 +25,7 @@ public class PedidoPagoPublisher {
 
             String payload = objectMapper.writeValueAsString(evento);
 
-            sqsTemplate.send(to -> to
-                    .queue(queueName)
-                    .payload(payload)
-            );
+            sqsTemplate.send(queueName, payload);
 
             log.info("Evento publicado com sucesso na fila: {}", queueName);
         } catch (Exception e) {
