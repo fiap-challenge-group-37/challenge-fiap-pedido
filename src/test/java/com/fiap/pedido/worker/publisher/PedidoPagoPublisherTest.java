@@ -32,30 +32,34 @@ class PedidoPagoPublisherTest {
     private PedidoPagoPublisher publisher;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         ReflectionTestUtils.setField(publisher, "queueName", "pedido-pago-queue");
-        // Normalmente responde com JSON válido
-        when(objectMapper.writeValueAsString(any())).thenReturn("{\"idPedido\":123}");
     }
 
     @Test
-    void devePublicarEventoComSucesso() {
+    void devePublicarEventoComSucesso() throws Exception {
         PedidoPagoEvento evento = new PedidoPagoEvento(123L, List.of(
                 new PedidoPagoEvento.ItemPedido("Hamburguer", 2)
         ));
+
+        when(objectMapper.writeValueAsString(any()))
+                .thenReturn("{\"idPedido\":123}");
 
         publisher.publicarPedidoPago(evento);
         verify(sqsTemplate, times(1)).send(any(Consumer.class));
     }
 
     @Test
-    void deveLogarMensagemAoPublicar() {
+    void deveLogarMensagemAoPublicar() throws Exception {
         PedidoPagoEvento evento = new PedidoPagoEvento(456L, List.of(
                 new PedidoPagoEvento.ItemPedido("Refrigerante", 1)
         ));
 
+        when(objectMapper.writeValueAsString(any()))
+                .thenReturn("{\"idPedido\":456}");
+
         publisher.publicarPedidoPago(evento);
-        verify(sqsTemplate).send(any(Consumer.class));
+        verify(sqsTemplate, times(1)).send(any(Consumer.class));
     }
 
     @Test
@@ -64,7 +68,8 @@ class PedidoPagoPublisherTest {
                 new PedidoPagoEvento.ItemPedido("Erro SQS", 1)
         ));
 
-        when(objectMapper.writeValueAsString(any())).thenReturn("{\"idPedido\":789}");
+        when(objectMapper.writeValueAsString(any()))
+                .thenReturn("{\"idPedido\":789}");
         doThrow(new RuntimeException("Erro SQS"))
                 .when(sqsTemplate)
                 .send(any(Consumer.class));
@@ -75,7 +80,6 @@ class PedidoPagoPublisherTest {
 
     @Test
     void deveLancarExcecaoQuandoFalharSerializacaoJson() throws Exception {
-        // Setup: forçar falha na serialização para cair no catch
         PedidoPagoEvento evento = new PedidoPagoEvento(42L, List.of());
 
         when(objectMapper.writeValueAsString(any()))
