@@ -5,7 +5,6 @@ import com.fiap.pedido.domain.dto.PedidoPagoEvento;
 import io.awspring.cloud.sqs.operations.SqsTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -17,6 +16,8 @@ import java.util.function.Consumer;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+
+import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(MockitoExtension.class)
 class PedidoPagoPublisherTest {
@@ -33,7 +34,7 @@ class PedidoPagoPublisherTest {
     @BeforeEach
     void setUp() throws Exception {
         ReflectionTestUtils.setField(publisher, "queueName", "pedido-pago-queue");
-        // Faz o mock do objectMapper retornar sempre um JSON qualquer
+        // Normalmente responde com JSON válido
         when(objectMapper.writeValueAsString(any())).thenReturn("{\"idPedido\":123}");
     }
 
@@ -44,19 +45,6 @@ class PedidoPagoPublisherTest {
         ));
 
         publisher.publicarPedidoPago(evento);
-
-        verify(sqsTemplate, times(1)).send(any(Consumer.class));
-    }
-
-    @Test
-    void deveLancarExcecaoQuandoFalharAoPublicar() {
-        PedidoPagoEvento evento = new PedidoPagoEvento(123L, List.of());
-
-        doThrow(new RuntimeException("Erro SQS"))
-                .when(sqsTemplate).send(any(Consumer.class));
-
-        assertThrows(RuntimeException.class, () -> publisher.publicarPedidoPago(evento));
-
         verify(sqsTemplate, times(1)).send(any(Consumer.class));
     }
 
@@ -67,7 +55,34 @@ class PedidoPagoPublisherTest {
         ));
 
         publisher.publicarPedidoPago(evento);
-
         verify(sqsTemplate).send(any(Consumer.class));
+    }
+
+    @Test
+    void deveLancarExcecaoQuandoFalharAoEnviarSqs() throws Exception {
+        PedidoPagoEvento evento = new PedidoPagoEvento(789L, List.of(
+                new PedidoPagoEvento.ItemPedido("Erro SQS", 1)
+        ));
+
+        when(objectMapper.writeValueAsString(any())).thenReturn("{\"idPedido\":789}");
+        doThrow(new RuntimeException("Erro SQS"))
+                .when(sqsTemplate)
+                .send(any(Consumer.class));
+
+        assertThrows(RuntimeException.class, () -> publisher.publicarPedidoPago(evento));
+        verify(sqsTemplate, times(1)).send(any(Consumer.class));
+    }
+
+    @Test
+    void deveLancarExcecaoQuandoFalharSerializacaoJson() throws Exception {
+        // Setup: forçar falha na serialização para cair no catch
+        PedidoPagoEvento evento = new PedidoPagoEvento(42L, List.of());
+
+        when(objectMapper.writeValueAsString(any()))
+                .thenThrow(new RuntimeException("Erro serialização"));
+
+        assertThrows(RuntimeException.class, () -> publisher.publicarPedidoPago(evento));
+        // Não deve nem chegar a chamar SQS pois falha antes!
+        verify(sqsTemplate, never()).send(any(Consumer.class));
     }
 }
