@@ -1,13 +1,15 @@
-package com.fiap. pedido.bdd;
+package com.fiap.pedido.bdd;
 
-import com.fiap.pedido. pedido.domain.entities.ItemPedido;
-import com. fiap.pedido.pedido.domain.entities.Pedido;
-import com.fiap. pedido.pedido.domain. entities.StatusPedido;
-import com. fiap.pedido.pedido.domain.port.PedidoRepository;
+import com.fiap.pedido.config.TestSecurityConfig;
+import com.fiap.pedido.config.TestSqsConfig;
+import com.fiap.pedido.pedido.domain.entities.ItemPedido;
+import com.fiap.pedido.pedido.domain.entities.Pedido;
+import com.fiap.pedido.pedido.domain.entities.StatusPedido;
+import com.fiap.pedido.pedido.domain.port.PedidoRepository;
 import io.cucumber.java.Before;
-import io.cucumber.java.pt. Dado;
+import io.cucumber.java.pt.Dado;
 import io.cucumber.java.pt.Entao;
-import io.cucumber. java.pt.Quando;
+import io.cucumber.java.pt.Quando;
 import io.cucumber.spring.CucumberContextConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,8 +18,8 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java. util.ArrayList;
-import java. util.List;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
                 "events.queue.pedido-pago=fila-teste-mock"
         }
 )
-@Import(com.fiap.pedido.config.TestSecurityConfig.class)
+@Import({TestSecurityConfig.class, TestSqsConfig.class}) // Importa configs de teste incluindo mock SQS
 @ActiveProfiles("test")
 public class PedidoStepDefinitions {
 
@@ -91,7 +93,6 @@ public class PedidoStepDefinitions {
 
     @Dado("que existe um pedido com status {string}")
     public void queExisteUmPedidoComStatus(String status) {
-        // Criar um item para o pedido (necessário para validação)
         List<ItemPedido> itens = List.of(
                 new ItemPedido(
                         null,
@@ -120,7 +121,6 @@ public class PedidoStepDefinitions {
     @Dado("que existem {int} pedidos não finalizados")
     public void queExistemPedidosNaoFinalizados(int quantidade) {
         for (int i = 0; i < quantidade; i++) {
-            // Criar um item para cada pedido
             List<ItemPedido> itens = List.of(
                     new ItemPedido(
                             null,
@@ -128,7 +128,7 @@ public class PedidoStepDefinitions {
                             "Produto " + (i + 1),
                             1,
                             BigDecimal.valueOf(10.00),
-                            BigDecimal. valueOf(10.00)
+                            BigDecimal.valueOf(10.00)
                     )
             );
 

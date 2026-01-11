@@ -1,23 +1,19 @@
 package com.fiap.pedido;
 
 import com.fiap.pedido.config.TestSecurityConfig;
-import org.junit.jupiter.api. Test;
+import com.fiap.pedido.config.TestSqsConfig; // importa aqui
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.context.annotation.Import;
-import org. springframework.test.context.ActiveProfiles;
 
-import static org.junit.jupiter.api.Assertions. assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest(properties = {
-        "spring.cloud.aws.sqs.enabled=false",
-        "spring.datasource.url=jdbc:h2:mem:testdb",
-        "spring.datasource.driverClassName=org.h2.Driver",
-        "spring.jpa.hibernate.ddl-auto=create-drop"
-})
 @ActiveProfiles("test")
-@Import(TestSecurityConfig.class)
+@SpringBootTest
+@Import({TestSecurityConfig.class, TestSqsConfig.class})
 class PedidoApplicationTests {
 
     @Autowired
