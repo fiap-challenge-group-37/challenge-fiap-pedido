@@ -68,8 +68,7 @@ class PedidoPagoPublisherTest {
                 new PedidoPagoEvento.ItemPedido("Erro SQS", 1)
         ));
 
-        when(objectMapper.writeValueAsString(any()))
-                .thenReturn("{\"idPedido\":789}");
+        when(objectMapper.writeValueAsString(any())).thenReturn("{\"idPedido\":789}");
         doThrow(new RuntimeException("Erro SQS"))
                 .when(sqsTemplate)
                 .send(any(Consumer.class));
@@ -86,7 +85,6 @@ class PedidoPagoPublisherTest {
                 .thenThrow(new RuntimeException("Erro serialização"));
 
         assertThrows(RuntimeException.class, () -> publisher.publicarPedidoPago(evento));
-        // Não deve nem chegar a chamar SQS pois falha antes!
         verify(sqsTemplate, never()).send(any(Consumer.class));
     }
 }
