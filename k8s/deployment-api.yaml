@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: api
-          image: 302039906417.dkr.ecr.us-east-1.amazonaws.com/pedido-app:latest
+          image: 643180813521.dkr.ecr.us-east-1.amazonaws.com/pedido-app:latest
 
           imagePullPolicy: Always
 

@@ -14,7 +14,7 @@ data:
 
   # SQS (ADICIONE ESTAS LINHAS)
   SQS_ENABLED: "true"
-  QUEUE_PEDIDO_PAGO: "https://sqs.us-east-1.amazonaws.com/302039906417/pedido-pago-queue"
+  QUEUE_PEDIDO_PAGO: "https://sqs.us-east-1.amazonaws.com/643180813521/pedido-pago-queue"
 ---
 apiVersion: v1
 kind: Secret
