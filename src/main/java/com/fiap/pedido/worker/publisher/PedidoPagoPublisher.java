@@ -1,6 +1,7 @@
 package com.fiap.pedido.worker.publisher;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+// O ObjectMapper não é mais necessário aqui, o SqsTemplate resolve sozinho
+// import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fiap.pedido.domain.dto.PedidoPagoEvento;
 import io.awspring.cloud.sqs.operations.SqsTemplate;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class PedidoPagoPublisher {
 
     private final SqsTemplate sqsTemplate;
-    private final ObjectMapper objectMapper;
+    // private final ObjectMapper objectMapper; // Pode remover a injeção dele se quiser limpar
 
     @Value("${events.queue.pedido-pago}")
     private String queueName;
@@ -23,9 +24,11 @@ public class PedidoPagoPublisher {
         try {
             log.info("Publicando evento de pedido pago: {}", evento.idPedido());
 
-            String payload = objectMapper.writeValueAsString(evento);
-
-            sqsTemplate.send(queueName, payload);
+            // --- AQUI ESTÁ A CORREÇÃO ---
+            // Removemos a conversão manual para String.
+            // Usamos o método fluente (.payload) para enviar o Objeto Java.
+            sqsTemplate.send(to -> to.queue(queueName).payload(evento));
+            // -----------------------------
 
             log.info("Evento publicado com sucesso na fila: {}", queueName);
         } catch (Exception e) {
