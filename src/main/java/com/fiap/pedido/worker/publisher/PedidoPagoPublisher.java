@@ -1,38 +1,36 @@
 package com.fiap.pedido.worker.publisher;
 
-// O ObjectMapper não é mais necessário aqui, o SqsTemplate resolve sozinho
-// import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fiap.pedido.domain.dto.PedidoPagoEvento;
 import io.awspring.cloud.sqs.operations.SqsTemplate;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
-@Component
-@RequiredArgsConstructor
 public class PedidoPagoPublisher {
 
     private final SqsTemplate sqsTemplate;
-    // private final ObjectMapper objectMapper; // Pode remover a injeção dele se quiser limpar
+    private final ObjectMapper objectMapper;
+    private static final Logger logger = LoggerFactory.getLogger(PedidoPagoPublisher.class);
 
     @Value("${events.queue.pedido-pago}")
     private String queueName;
 
+    public PedidoPagoPublisher(SqsTemplate sqsTemplate, ObjectMapper objectMapper) {
+        this.sqsTemplate = sqsTemplate;
+        this.objectMapper = objectMapper;
+    }
+
     public void publicarPedidoPago(PedidoPagoEvento evento) {
         try {
-            log.info("Publicando evento de pedido pago: {}", evento.idPedido());
+            String payloadJson = objectMapper.writeValueAsString(evento);
+            logger.info("Publicando evento de pedido pago: {}", payloadJson);
 
-            // --- AQUI ESTÁ A CORREÇÃO ---
-            // Removemos a conversão manual para String.
-            // Usamos o método fluente (.payload) para enviar o Objeto Java.
-            sqsTemplate.send(to -> to.queue(queueName).payload(evento));
-            // -----------------------------
+            sqsTemplate.send(to -> to.queue(queueName).payload(payloadJson));
 
-            log.info("Evento publicado com sucesso na fila: {}", queueName);
+            logger.info("Evento publicado com sucesso na fila: {}", queueName);
         } catch (Exception e) {
-            log.error("Erro ao publicar evento de pedido pago:  {}", e.getMessage(), e);
+            logger.error("Erro ao publicar evento de pedido pago:  {}", e.getMessage(), e);
             throw new RuntimeException("Falha ao publicar evento de pedido pago", e);
         }
     }
