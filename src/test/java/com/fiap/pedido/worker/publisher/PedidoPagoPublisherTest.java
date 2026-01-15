@@ -1,5 +1,6 @@
 package com.fiap.pedido.worker.publisher;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fiap.pedido.domain.dto.PedidoPagoEvento;
 import io.awspring.cloud.sqs.operations.SqsTemplate;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +25,8 @@ class PedidoPagoPublisherTest {
     @Mock
     private SqsTemplate sqsTemplate;
 
-    // ObjectMapper não é mais usado na classe, então removemos o Mock dele.
+    @Mock
+    private ObjectMapper objectMapper;
 
     @InjectMocks
     private PedidoPagoPublisher publisher;
@@ -35,45 +37,61 @@ class PedidoPagoPublisherTest {
     }
 
     @Test
-    void devePublicarEventoComSucesso() {
+    void devePublicarEventoComSucesso() throws Exception {
         PedidoPagoEvento evento = new PedidoPagoEvento(123L, List.of(
                 new PedidoPagoEvento.ItemPedido("Hamburguer", 2)
         ));
 
-        // Executa
+        // Mocka a serialização
+        when(objectMapper.writeValueAsString(evento)).thenReturn("{\"idPedido\":123,\"itens\":[]}");
+
         publisher.publicarPedidoPago(evento);
 
-        // Verifica se o método send foi chamado passando um Consumer (a lambda to -> ...)
+        verify(objectMapper, times(1)).writeValueAsString(evento);
         verify(sqsTemplate, times(1)).send(any(Consumer.class));
     }
 
     @Test
-    void deveLogarMensagemAoPublicar() {
+    void deveLogarMensagemAoPublicar() throws Exception {
         PedidoPagoEvento evento = new PedidoPagoEvento(456L, List.of(
                 new PedidoPagoEvento.ItemPedido("Refrigerante", 1)
         ));
 
+        when(objectMapper.writeValueAsString(evento)).thenReturn("{\"idPedido\":456,\"itens\":[]}");
+
         assertDoesNotThrow(() -> publisher.publicarPedidoPago(evento));
 
+        verify(objectMapper, times(1)).writeValueAsString(evento);
         verify(sqsTemplate, times(1)).send(any(Consumer.class));
     }
 
     @Test
-    void deveLancarExcecaoQuandoFalharAoEnviarSqs() {
+    void deveLancarExcecaoQuandoFalharAoEnviarSqs() throws Exception {
         PedidoPagoEvento evento = new PedidoPagoEvento(789L, List.of(
                 new PedidoPagoEvento.ItemPedido("Erro SQS", 1)
         ));
 
-        // Simula erro genérico ao chamar o send (cobre tanto erro de conexão quanto de serialização interna do SQS)
+        when(objectMapper.writeValueAsString(evento)).thenReturn("{\"idPedido\":789,\"itens\":[]}");
         doThrow(new RuntimeException("Erro SQS"))
                 .when(sqsTemplate).send(any(Consumer.class));
 
         assertThrows(RuntimeException.class, () -> publisher.publicarPedidoPago(evento));
 
+        verify(objectMapper, times(1)).writeValueAsString(evento);
         verify(sqsTemplate, times(1)).send(any(Consumer.class));
     }
 
-    // O teste 'deveLancarExcecaoQuandoFalharSerializacaoJson' foi removido
-    // pois a responsabilidade de serialização agora é interna do SqsTemplate
-    // e é coberta pelo teste de exceção genérica acima.
+    @Test
+    void deveLancarExcecaoQuandoFalharSerializacaoJson() throws Exception {
+        PedidoPagoEvento evento = new PedidoPagoEvento(159L, List.of(
+                new PedidoPagoEvento.ItemPedido("Falha JSON", 1)
+        ));
+
+        when(objectMapper.writeValueAsString(evento)).thenThrow(new RuntimeException("Falha de serialização"));
+
+        assertThrows(RuntimeException.class, () -> publisher.publicarPedidoPago(evento));
+
+        verify(objectMapper, times(1)).writeValueAsString(evento);
+        verify(sqsTemplate, never()).send(any(Consumer.class));
+    }
 }
