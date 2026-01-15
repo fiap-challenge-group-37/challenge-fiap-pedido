@@ -6,7 +6,9 @@ import io.awspring.cloud.sqs.operations.SqsTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PedidoPagoPublisher {
 
     private final SqsTemplate sqsTemplate;
